@@ -34,13 +34,16 @@ server <- function(input, output, session) {
         
         rna_input <- if(input$data_source == "Example") {
             reactive({readRDS("./large_data/rnaseq.rds")})
-        } else {
+        } else if (input$data_source == "Upload"){
             reactive({
                 validate(
                     need(input$rna_input, 
                          "Please Upload Data")
                 )
                 readRDS(input$rna_input$datapath)})
+        } else {
+            reactive({
+                readRDS(paste0("./large_data/",input$rna_select))})
         }
         
         output$rna_var <- renderUI({

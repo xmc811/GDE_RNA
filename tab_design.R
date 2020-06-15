@@ -17,7 +17,7 @@ tab_rna <- tabPanel(
             h4("Data Source"),
             splitLayout(radioGroupButtons(inputId = "data_source",
                                           label = NULL,
-                                          choices = c("Example","Upload"),
+                                          choices = c("Example","Upload","Select"),
                                           justified = TRUE),
                         actionButton(
                             inputId = "rna_start",
@@ -33,6 +33,13 @@ tab_rna <- tabPanel(
                 fileInput(inputId = "rna_input",
                           label = NULL,
                           buttonLabel = "Browse..")
+            ),
+            
+            conditionalPanel(
+                condition = "input.data_source == 'Select'",
+                selectInput(inputId = "rna_select", 
+                            label = "RNA-seq results",
+                            choices = list.files("./large_data/"))
             ),
             br(),
             
