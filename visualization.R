@@ -38,6 +38,8 @@ deseq_heatmap <- function(dds, var, palette, dir) {
 
 deseq_pca <- function(dds, var, palette, dir) {
     
+    withProgress(message = "Plotting...", value = 0, {
+    
     vsd <- vst(dds, blind = FALSE)
     
     if (is.numeric(dds@colData[[var]])) {
@@ -55,10 +57,12 @@ deseq_pca <- function(dds, var, palette, dir) {
             labs(color = var) +
             theme_bw() +
             theme(aspect.ratio = 1)
-    }
+    }})
 }
 
 deseq_ma <- function(res, p_co, lfc_co, lfc_plot_lim = 5) {
+    
+    withProgress(message = "Plotting...", value = 0, {
     
     res %<>%
         deseq_transform(p_co, lfc_co)
@@ -83,6 +87,7 @@ deseq_ma <- function(res, p_co, lfc_co, lfc_plot_lim = 5) {
               axis.text = element_text(size = 12),
               axis.title = element_text(size = 14)) +
         geom_hline(yintercept = 0, color = "#984ea3", size = 1.5, alpha = 0.5)
+    })
 }
 
 
@@ -90,6 +95,8 @@ deseq_ma <- function(res, p_co, lfc_co, lfc_plot_lim = 5) {
 deseq_volcano <- function(res, p_co, lfc_co, 
                           p_plot_lim = 5, 
                           lfc_plot_lim = 5) {
+    
+    withProgress(message = "Plotting...", value = 0, {
     
     res %<>%
         deseq_transform(p_co, lfc_co)
@@ -117,6 +124,7 @@ deseq_volcano <- function(res, p_co, lfc_co,
               plot.margin = unit(rep(1,4), "cm"),
               axis.text = element_text(size = 12),
               axis.title = element_text(size = 14))
+    })
     
 }
 
@@ -139,6 +147,8 @@ deseq_table <- function(res, p_co, lfc_co) {
 
 deseq_cluster <- function(dds, genes, palette, dir) {
     
+    withProgress(message = "Plotting...", value = 0, {
+    
     mtx <- get_mtx_dds(dds, genes)
     
     mtx %<>%
@@ -158,10 +168,13 @@ deseq_cluster <- function(dds, genes, palette, dir) {
     Heatmap(mtx, 
             col = col_fun,
             rect_gp = gpar(col = "white", lwd = 2))
+    })
 }
 
 
 deseq_box <- function(dds, genes, var, palette) {
+    
+    withProgress(message = "Plotting...", value = 0, {
     
     df <- get_nm_count_dds(dds, genes, var)
     
@@ -173,10 +186,13 @@ deseq_box <- function(dds, genes, var, palette) {
                        y = log10(count))) +
         facet_wrap(~symbol) +
         scale_fill_brewer(palette = palette)
+    })
 }
 
 
 deseq_gsea <- function(res, pathways) {
+    
+    withProgress(message = "Plotting...", value = 0, {
     
     res <- deseq_to_stat(res)
     
@@ -197,5 +213,5 @@ deseq_gsea <- function(res, pathways) {
         labs(x = "Pathway",
              fill = "-log10 adjusted p-value") +
         theme_bw()
-    
+    })
 }
