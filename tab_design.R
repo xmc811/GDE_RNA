@@ -259,7 +259,23 @@ tab_rna <- tabPanel(
     )
 )
 
-
+tab_help <- tabPanel(
+    
+    title = "Help",
+    fluid = TRUE,
+    value = "v_help",
+    
+    sidebarLayout(
+        
+        sidebarPanel = sidebarPanel(
+            
+        ),
+        
+        mainPanel(
+            uiOutput("pdfview")
+        )
+    )
+)
 
 tab_about <- tabPanel(
     

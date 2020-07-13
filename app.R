@@ -16,6 +16,7 @@ ui <- navbarPage(
     id = "tabs",
     
     tab_rna,
+    tab_help,
     tab_about,
     
     tags$head(tags$link(rel="stylesheet", 
@@ -201,6 +202,11 @@ server <- function(input, output, session) {
         height = rna_plot_height, 
         width = rna_plot_width)
         
+    })
+    
+    output$pdfview <- renderUI({
+        tags$iframe(style = "height:700px; width:100%", 
+                    src = "GDE_User_Guide_07102020.pdf")
     })
     
 }
