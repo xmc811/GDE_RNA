@@ -1,5 +1,6 @@
 
-packages <- c("shiny", 
+packages <- c("shiny",
+              "shinyFiles",
               "shinythemes", 
               "shinyWidgets",
               "tidyverse", "magrittr","DT", 

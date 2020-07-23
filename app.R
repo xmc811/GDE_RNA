@@ -15,6 +15,7 @@ ui <- navbarPage(
     title = "Genomic Data Explorer",
     id = "tabs",
     
+    tab_file,
     tab_rna,
     tab_help,
     tab_about,
@@ -26,6 +27,11 @@ ui <- navbarPage(
 
 # server function
 server <- function(input, output, session) {
+    
+   
+    shinyFileChoose(input, 
+                    id = 'files', 
+                    roots = c(home = '~'))
 
     # RNA
     

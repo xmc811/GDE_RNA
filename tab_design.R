@@ -2,6 +2,67 @@
 hmks_hs <- fgsea::gmtPathways("./data/h.all.v7.0.symbols.gmt")
 
 
+tab_file <- tabPanel(
+    
+    title = "Data Input",
+    fluid = TRUE,
+    value = "v_file",
+    
+    sidebarLayout(
+        
+        sidebarPanel = sidebarPanel(
+            h3("RNA-seq Data Input"),
+            br(),
+            h4("Data Source"),
+            splitLayout(radioGroupButtons(inputId = "count_source",
+                                          label = NULL,
+                                          choices = c("Example","Upload","Select"),
+                                          justified = TRUE),
+                        actionButton(
+                            inputId = "count_start",
+                            label = "Launch",
+                            icon = icon("bar-chart"),
+                            style = "color: white; background-color: #0570b0;
+                            float:right; margin-right: 5px;"),
+                        
+                        cellWidths = c("67%", "33%")),
+            
+            conditionalPanel(
+                condition = "input.count_source == 'Upload'",
+                shinyFilesButton('files', label='File select', title='Please select a file', multiple=TRUE)
+            ),
+            
+            conditionalPanel(
+                condition = "input.count_source == 'Select'",
+                selectInput(inputId = "rna_select", 
+                            label = "RNA-seq results",
+                            choices = list.files("./large_data/"))
+            ),
+            br(),
+            tags$head(tags$style(HTML("
+                              .shiny-split-layout > div {
+                                overflow: visible;
+                              }
+                              .progress-bar {
+                              height: 20px;
+                              }
+                              .shiny-notification {
+                              width: 200px;
+                              top: 50%;
+                              right: 30%;
+                              position: fixed;
+                              }
+                              ")))
+        ),
+        
+        mainPanel(
+            
+            
+        )
+    )
+)
+
+
 tab_rna <- tabPanel(
     
     title = "RNA-seq",
