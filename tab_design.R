@@ -35,15 +35,15 @@ tab_file <- tabPanel(
                                  multiple = TRUE),
                 br(),
                 fileInput(inputId = "meta_input",
-                          label = "Please Upload Metadata",
-                          buttonLabel = "Browse..")
+                          label = " ",
+                          buttonLabel = "Upload Metadata..")
             ),
             
             conditionalPanel(
                 condition = "input.count_source == 'Select'",
                 fileInput(inputId = "meta_input",
-                          label = "Please Upload Metadata",
-                          buttonLabel = "Browse..")
+                          label = NULL,
+                          buttonLabel = "Upload Metadata..")
             ),
             br(),
             tags$head(tags$style(HTML("
