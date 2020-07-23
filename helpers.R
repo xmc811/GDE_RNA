@@ -140,3 +140,61 @@ deseq_to_stat <- function(res) {
     names(stat) <- rownames(res)
     return(stat)
 }
+
+
+htseq_to_mtx <- function(files, metadata = NULL) {
+    
+    withProgress(message = "Processing HTSeq Count Files", value = 0.1, {
+    
+    if (is.null(metadata)) {
+        metadata <- tibble(sample = paste0("Sample",1:length(files)),
+                           files = files)
+    }
+    
+    names(files) <- metadata$sample
+    df_list <- list()
+    
+    incProgress(0.1, message = "Read Count Files...")
+    
+    for (i in 1: length(files)) {
+        
+        df <- read.table(files[i], header = TRUE)
+        
+        df$symbol <- str_split(df$gene_id, pattern = "\\|") %>%
+            map_chr(.f = `[`(1))
+        
+        df %<>%
+            filter(symbol != "?") %>%
+            select(symbol, raw_count)
+        
+        df$sample <- names(files)[i]
+        
+        df_list[[i]] <- df
+    }
+    
+    incProgress(0.5, message = "File Format Transformation...")
+    
+    a <- do.call("rbind", df_list)
+    
+    a %<>%
+        pivot_wider(names_from = sample, 
+                    values_from = raw_count,
+                    values_fn = median)
+    
+    mtx <- as.matrix(a[2:ncol(a)])
+    rownames(mtx) <- a$symbol
+    
+    return(mtx)
+    })
+}
+
+get_count_message <- function(nfiles, ngenes) {
+    
+    msg <- paste0("Processed ", 
+                  nfiles, 
+                  " HTSeq count files\n",
+                  "Number of genes: ", ngenes)
+    return(msg)
+}
+
+

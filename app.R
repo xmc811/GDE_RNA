@@ -4,7 +4,7 @@ source("helpers.R")
 source("tab_design.R")
 source("visualization.R")
 
-options(shiny.maxRequestSize = 100 * 1024 ^ 2)
+options(shiny.maxRequestSize = 500 * 1024 ^ 2)
 options(spinner.color = "#3182bd")
 options(spinner.type = 8)
 
@@ -28,10 +28,19 @@ ui <- navbarPage(
 # server function
 server <- function(input, output, session) {
     
-   
+
     shinyFileChoose(input, 
                     id = 'files', 
-                    roots = c(home = '~'))
+                    roots = c(home = "~/"),
+                    filetypes = "tsv")
+    
+    observeEvent(input$count_start, {
+        roots <- c(home = "~/")
+        files_path <- parseFilePaths(roots, input$files)
+        count_input <- htseq_to_mtx(files_path$datapath)
+        output$count_message <- renderText({get_count_message(ncol(count_input),
+                                                              nrow(count_input))})
+    })
 
     # RNA
     

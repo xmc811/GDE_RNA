@@ -11,7 +11,7 @@ tab_file <- tabPanel(
     sidebarLayout(
         
         sidebarPanel = sidebarPanel(
-            h3("RNA-seq Data Input"),
+            h3("RNA-seq Raw Count Input"),
             br(),
             h4("Data Source"),
             splitLayout(radioGroupButtons(inputId = "count_source",
@@ -29,7 +29,14 @@ tab_file <- tabPanel(
             
             conditionalPanel(
                 condition = "input.count_source == 'Upload'",
-                shinyFilesButton('files', label='File select', title='Please select a file', multiple=TRUE)
+                shinyFilesButton('files', 
+                                 label='Select RNA Count Files', 
+                                 title='Please select HTSeq RNA count files', 
+                                 multiple = TRUE),
+                br(),
+                fileInput(inputId = "meta_input",
+                          label = "Please Upload Metadata",
+                          buttonLabel = "Browse..")
             ),
             
             conditionalPanel(
@@ -56,8 +63,7 @@ tab_file <- tabPanel(
         ),
         
         mainPanel(
-            
-            
+            verbatimTextOutput("count_message")
         )
     )
 )
