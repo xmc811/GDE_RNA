@@ -29,7 +29,7 @@ ui <- navbarPage(
 server <- function(input, output, session) {
     
     shinyFileChoose(input, 
-                    id = 'files', 
+                    id = 'count_upload', 
                     roots = c(home = "~/"),
                     filetypes = "tsv")
     
@@ -55,7 +55,8 @@ server <- function(input, output, session) {
             
             reactive({
                 roots <- c(home = "~/")
-                files_path <- parseFilePaths(roots, input$files)$datapath
+                files_path <- parseFilePaths(roots, 
+                                             input$count_upload)$datapath
                 htseq_to_mtx(files_path)
             })
             
@@ -80,7 +81,7 @@ server <- function(input, output, session) {
                 
             } else if (input$count_source == "Upload") {
                 validate(
-                    need(input$files, 
+                    need(input$count_upload, 
                          "Please Upload Count Data")
                 )
             } else {}

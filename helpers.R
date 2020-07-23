@@ -167,6 +167,8 @@ htseq_to_mtx <- function(files, metadata = NULL) {
             filter(symbol != "?") %>%
             select(symbol, raw_count)
         
+        df <- df[!duplicated(df$symbol),]
+        
         df$sample <- names(files)[i]
         
         df_list[[i]] <- df
@@ -178,8 +180,7 @@ htseq_to_mtx <- function(files, metadata = NULL) {
     
     a %<>%
         pivot_wider(names_from = sample, 
-                    values_from = raw_count,
-                    values_fn = median)
+                    values_from = raw_count)
     
     mtx <- as.matrix(a[2:ncol(a)])
     rownames(mtx) <- a$symbol
@@ -200,16 +201,4 @@ get_count_message <- function(mtx) {
 
 # test
 
-a <- list.files("../DATA/htseqcount")
-ids <- str_extract(a, "-[0-9]{6,7}-") %>%
-    str_remove_all("-")
-mt$File <- a[match(mt$TID, ids)]
-write_csv(mt, "../ICON_RNA/data/metadata.csv")
-
-ids[1:10]
-
-colnames(test) <- c("ICON-057", "ICON-058", "ICON-059", "ICON-060", "ICON-064",
-                    "ICON-065", "ICON-068", "ICON-069", "ICON-070", "ICON-026")
-
-saveRDS(test, "./data/example_mtx.rds")
 
