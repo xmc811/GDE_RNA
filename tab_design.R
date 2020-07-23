@@ -43,7 +43,11 @@ tab_file <- tabPanel(
                 condition = "input.count_source == 'Select'",
                 selectInput(inputId = "rna_select", 
                             label = "RNA-seq results",
-                            choices = list.files("./large_data/"))
+                            choices = list.files("./large_data/")),
+                br(),
+                fileInput(inputId = "meta_input",
+                          label = "Please Upload Metadata",
+                          buttonLabel = "Browse..")
             ),
             br(),
             tags$head(tags$style(HTML("
@@ -63,7 +67,16 @@ tab_file <- tabPanel(
         ),
         
         mainPanel(
-            verbatimTextOutput("count_message")
+            tabsetPanel(
+                id = "count_panel",
+                tabPanel(
+                    value = 1,
+                    title = "Count Data Info",
+                    br(),
+                    verbatimTextOutput("mt_message"),
+                    verbatimTextOutput("count_message")
+                )
+            )
         )
     )
 )

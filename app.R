@@ -28,18 +28,65 @@ ui <- navbarPage(
 # server function
 server <- function(input, output, session) {
     
-
     shinyFileChoose(input, 
                     id = 'files', 
                     roots = c(home = "~/"),
                     filetypes = "tsv")
     
     observeEvent(input$count_start, {
-        roots <- c(home = "~/")
-        files_path <- parseFilePaths(roots, input$files)
-        count_input <- htseq_to_mtx(files_path$datapath)
-        output$count_message <- renderText({get_count_message(ncol(count_input),
-                                                              nrow(count_input))})
+        
+        metadata <- if (input$count_source == "Example") {
+            
+            reactive({read_csv("./data/metadata.csv")})
+            
+        } else if (input$count_source == "Upload") {
+            
+            reactive({read_csv(input$meta_input$datapath)})
+            
+        } else {
+            
+        }
+        
+        cts <- if (input$count_source == "Example") {
+            
+            reactive({readRDS("./data/example_mtx.rds")})
+            
+        } else if (input$count_source == "Upload"){
+            
+            reactive({
+                roots <- c(home = "~/")
+                files_path <- parseFilePaths(roots, input$files)$datapath
+                htseq_to_mtx(files_path)
+            })
+            
+        } else {
+            
+        }
+        
+        output$mt_message <- renderText({
+            if (input$count_source == "Example") {
+                
+            } else if (input$count_source == "Upload") {
+                validate(
+                    need(input$meta_input, 
+                         "Please Upload Metadata")
+                )
+            } else {}
+            paste0("Metadata Uploaded: ", nrow(metadata()), " rows")
+        })
+        
+        output$count_message <- renderText({
+            if (input$count_source == "Example") {
+                
+            } else if (input$count_source == "Upload") {
+                validate(
+                    need(input$files, 
+                         "Please Upload Count Data")
+                )
+            } else {}
+            get_count_message(cts())
+        })
+        
     })
 
     # RNA

@@ -188,13 +188,28 @@ htseq_to_mtx <- function(files, metadata = NULL) {
     })
 }
 
-get_count_message <- function(nfiles, ngenes) {
+get_count_message <- function(mtx) {
     
     msg <- paste0("Processed ", 
-                  nfiles, 
+                  ncol(mtx), 
                   " HTSeq count files\n",
-                  "Number of genes: ", ngenes)
+                  "Number of genes: ", nrow(mtx))
     return(msg)
 }
 
+
+# test
+
+a <- list.files("../DATA/htseqcount")
+ids <- str_extract(a, "-[0-9]{6,7}-") %>%
+    str_remove_all("-")
+mt$File <- a[match(mt$TID, ids)]
+write_csv(mt, "../ICON_RNA/data/metadata.csv")
+
+ids[1:10]
+
+colnames(test) <- c("ICON-057", "ICON-058", "ICON-059", "ICON-060", "ICON-064",
+                    "ICON-065", "ICON-068", "ICON-069", "ICON-070", "ICON-026")
+
+saveRDS(test, "./data/example_mtx.rds")
 
