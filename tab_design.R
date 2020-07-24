@@ -17,15 +17,7 @@ tab_file <- tabPanel(
             splitLayout(radioGroupButtons(inputId = "count_source",
                                           label = NULL,
                                           choices = c("Example","Upload","Select"),
-                                          justified = TRUE),
-                        actionButton(
-                            inputId = "count_start",
-                            label = "Launch",
-                            icon = icon("bar-chart"),
-                            style = "color: white; background-color: #0570b0;
-                            float:right; margin-right: 5px;"),
-                        
-                        cellWidths = c("67%", "33%")),
+                                          justified = TRUE)),
             
             conditionalPanel(
                 condition = "input.count_source == 'Upload'",
@@ -46,6 +38,10 @@ tab_file <- tabPanel(
                           buttonLabel = "Upload Metadata..")
             ),
             br(),
+            conditionalPanel(
+                condition = "input.count_panel == 1",
+                uiOutput("cts_proc")
+            ),
             tags$head(tags$style(HTML("
                               .shiny-split-layout > div {
                                 overflow: visible;
@@ -67,10 +63,16 @@ tab_file <- tabPanel(
                 id = "count_panel",
                 tabPanel(
                     value = 1,
-                    title = "Count Data Upload",
+                    title = "Count Data Summary",
                     br(),
                     verbatimTextOutput("mt_message"),
-                    verbatimTextOutput("count_message")
+                    verbatimTextOutput("count_message"),
+                    verbatimTextOutput("cts_summary")
+                ),
+                tabPanel(
+                    value = 2,
+                    title = "Summary",
+                    br()
                 )
             )
         )

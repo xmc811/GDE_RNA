@@ -33,61 +33,94 @@ server <- function(input, output, session) {
                     roots = c(home = "~/"),
                     filetypes = "tsv")
     
-    observeEvent(input$count_start, {
+    metadata <- reactive({if (input$count_source == "Example") {
         
-        metadata <- if (input$count_source == "Example") {
-            
-            reactive({read_csv("./data/metadata.csv")})
+        read_csv("./data/metadata.csv")
+        
+    } else if (input$count_source == "Upload") {
+        
+        read_csv(input$meta_input$datapath)
+        
+    } else {}
+    })
+    
+    cts_raw <- reactive({if (input$count_source == "Example") {
+        
+        readRDS("./data/example_mtx.rds")
+        
+    } else if (input$count_source == "Upload"){
+        
+            roots <- c(home = "~/")
+            files_path <- parseFilePaths(roots, 
+                                         input$count_upload)$datapath
+            htseq_to_mtx(files_path)
+        
+    } else {}
+    })
+    
+    output$mt_message <- renderText({
+        if (input$count_source == "Example") {
             
         } else if (input$count_source == "Upload") {
+            validate(
+                need(input$meta_input, 
+                     "Please Upload Metadata")
+            )
+        } else {}
+        paste0("Metadata uploaded: ", nrow(metadata()), " rows")
+    })
+    
+    output$count_message <- renderText({
+        if (input$count_source == "Example") {
             
-            reactive({read_csv(input$meta_input$datapath)})
-            
-        } else {
-            
-        }
+        } else if (input$count_source == "Upload") {
+            validate(
+                need(input$count_upload, 
+                     "Please Upload Count Data")
+            )
+        } else {}
+        get_count_message(cts_raw())
+    })
         
-        cts <- if (input$count_source == "Example") {
-            
-            reactive({readRDS("./data/example_mtx.rds")})
-            
-        } else if (input$count_source == "Upload"){
-            
-            reactive({
-                roots <- c(home = "~/")
-                files_path <- parseFilePaths(roots, 
-                                             input$count_upload)$datapath
-                htseq_to_mtx(files_path)
-            })
-            
-        } else {
-            
-        }
-        
-        output$mt_message <- renderText({
-            if (input$count_source == "Example") {
-                
-            } else if (input$count_source == "Upload") {
-                validate(
-                    need(input$meta_input, 
-                         "Please Upload Metadata")
-                )
-            } else {}
-            paste0("Metadata Uploaded: ", nrow(metadata()), " rows")
-        })
-        
-        output$count_message <- renderText({
-            if (input$count_source == "Example") {
-                
-            } else if (input$count_source == "Upload") {
-                validate(
-                    need(input$count_upload, 
-                         "Please Upload Count Data")
-                )
-            } else {}
-            get_count_message(cts())
-        })
-        
+    output$cts_proc <- renderUI({
+        validate(
+            need(try(metadata()), "Please Upload Metadata"),
+            need(try(cts_raw()), "Please Upload Count Data")
+        )
+        list(
+            h4("File-Sample Name Matching"),
+            selectInput(inputId = "meta_sample_col", 
+                        label = "Sample Column",
+                        choices = colnames(metadata())),
+            selectInput(inputId = "meta_file_col", 
+                        label = "File Name Column",
+                        choices = colnames(metadata())),
+            h4("Count cutoff (count data row sums < n)"),
+            numericInput(inputId = "count_co",
+                         label = NULL,
+                         value = 10),
+            actionButton(
+                inputId = "cts_start",
+                label = "Launch",
+                icon = icon("bar-chart"),
+                style = "color: white; background-color: #0570b0")
+        )
+    })
+    
+    cts <- eventReactive(input$cts_start, {
+        mtx_name_match(cts_raw(), 
+                       metadata(), 
+                       input$meta_sample_col,
+                       input$meta_file_col,
+                       input$count_co)
+    })
+    
+    output$cts_summary <- renderPrint({
+        validate(
+            need(try(cts()), ""),
+            need(nrow(cts()) >= 1, "Name matching returns count matrix with 0 samples.\nPlease make sure the columns of sample names and files names are chosen correctly.")
+        )
+        trubble(cts())
     })
 
     # RNA

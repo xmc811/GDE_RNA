@@ -142,16 +142,10 @@ deseq_to_stat <- function(res) {
 }
 
 
-htseq_to_mtx <- function(files, metadata = NULL) {
+htseq_to_mtx <- function(files) {
     
     withProgress(message = "Processing HTSeq Count Files", value = 0.1, {
     
-    if (is.null(metadata)) {
-        metadata <- tibble(sample = paste0("Sample",1:length(files)),
-                           files = files)
-    }
-    
-    names(files) <- metadata$sample
     df_list <- list()
     
     incProgress(0.1, message = "Read Count Files...")
@@ -169,7 +163,7 @@ htseq_to_mtx <- function(files, metadata = NULL) {
         
         df <- df[!duplicated(df$symbol),]
         
-        df$sample <- names(files)[i]
+        df$sample <- basename(files)[i]
         
         df_list[[i]] <- df
     }
@@ -189,16 +183,84 @@ htseq_to_mtx <- function(files, metadata = NULL) {
     })
 }
 
+mtx_name_match <- function(mtx, metadata, sample_col, file_col, cutoff) {
+    
+    idx <- match(colnames(mtx), metadata[[file_col]])
+    
+    mtx <- mtx[,!is.na(idx)]
+    idx <- idx[!is.na(idx)]
+    
+    colnames(mtx) <- metadata[[sample_col]][idx]
+    
+    mtx <- mtx[rowSums(mtx >= cutoff),]
+    
+    return(mtx)
+    
+}
+
 get_count_message <- function(mtx) {
     
-    msg <- paste0("Processed ", 
-                  ncol(mtx), 
-                  " HTSeq count files\n",
+    msg <- paste0(ncol(mtx), 
+                  " HTSeq count files uploaded\n",
                   "Number of genes: ", nrow(mtx))
     return(msg)
 }
 
 
-# test
-
+trubble <- function(cts) {
+    tmp <- as.data.frame(
+        rbind(
+            cts[1:5, ],
+            ... = rep("...", length(cts[1, ])),
+            cts[(nrow(cts) - 4):(nrow(cts)), ]
+        )
+    )
+    
+    if (ncol(tmp) > 10) {
+        tmp2 <- tmp[, 1:10]
+    } else {
+        tmp2 <- tmp
+    }
+    
+    nr <- nrow(cts)
+    nc <- ncol(cts)
+    
+    if (ncol(tmp) > 10) {
+        output <- paste(
+            "Your pre-processed data contains", nr, "genes and", nc, 
+            "samples. Showing the first 10 samples:\n"
+        )
+    } else {
+        output <- paste(
+            "Your pre-processed data contains", nr, "genes and", 
+            nc, "samples.\n"
+        )
+    }
+    
+    test <- as.matrix(tmp2)
+    test <- rbind(colnames(tmp2), test)
+    y <- sprintf(paste0("%",max(nchar(test)),"s"), test)
+    y <- matrix(y, nrow = 12)
+    
+    gen <- c("", rownames(tmp2))
+    gen <- gsub("\\s", " ", format(gen, width = max(nchar(gen))))
+    
+    if (ncol(tmp) > 10) {
+        output2 <- paste("\nSamples not shown:\n\n")
+        output3 <- paste(colnames(tmp[11:ncol(tmp)]))
+    } else {
+        output2 <- NULL
+        output3 <- NULL
+    }
+    
+    cat(output, "\n")
+    for(i in 1:nrow(y)) {
+        cat(gen[i], y[i, ], "\n")
+    }
+    
+    cat(output2)
+    for (i in 1:length(output3)) {
+        cat("  ", output3[i], "\n")
+    }
+}
 
