@@ -233,6 +233,15 @@ cts_to_dds <- function(mtx, metadata) {
 }
 
 
+assign_km_clu <- function(vsd, km_res) {
+    
+    vsd@colData$Kmeans <- LETTERS[km_res$cluster]
+    
+    return(vsd)
+    
+}
+
+
 trubble <- function(cts) {
     tmp <- as.data.frame(
         rbind(

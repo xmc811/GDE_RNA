@@ -83,6 +83,29 @@ dds_pca <- function(dds, vsd, var, palette, dir) {
         }})
 }
 
+vsd_km <- function(vsd, k) {
+    
+    pca <- DESeq2::plotPCA(vsd, 
+                           intgroup = colnames(vsd@colData)[1],
+                           returnData = TRUE)
+    
+    set.seed(42)
+    km_res <- kmeans(pca[,1:2], k)
+    
+    return(km_res)
+}
+
+dds_pca_km <- function(vsd, km_res, palette) {
+    
+    vsd@colData$Kmeans <- LETTERS[km_res$cluster]
+    
+    DESeq2::plotPCA(vsd, intgroup = "Kmeans") +
+        scale_color_brewer(palette = palette) +
+        labs(color = "Kmeans") +
+        theme_bw() +
+        theme(aspect.ratio = 1)
+}
+
 deseq_ma <- function(res, p_co, lfc_co, lfc_plot_lim = 5) {
     
     withProgress(message = "Plotting...", value = 0, {

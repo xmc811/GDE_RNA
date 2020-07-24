@@ -180,21 +180,21 @@ server <- function(input, output, session) {
         
     })
     
-    dds <- eventReactive(input$cts_compute, {
-        
-        cts_to_dds(cts(), mt())
-    })
+    dds <- reactiveVal()
+    vsd <- reactiveVal()
     
-    vsd <- eventReactive(input$cts_compute, {
+    observeEvent(input$cts_compute, {
         
-        DESeq2::vst(dds(), blind = FALSE)
+        dds(cts_to_dds(cts(), mt()))
+        vsd(DESeq2::vst(dds(), blind = FALSE))
+
     })
-    
+
     
     output$compute_message <- renderText({
         validate(
-            need(try(dds()), ""),
-            need(try(vsd()), "")
+            need(!is.null(dds()), ""),
+            need(!is.null(vsd()), "")
         )
         paste0("Computing Done")
     })
@@ -202,23 +202,97 @@ server <- function(input, output, session) {
     # PCA Plot
     
     output$pca_var_ui <- renderUI({
-        validate(
-            need(try(vsd()), "")
-        )
         list(
-            h4("Variable"),
             selectInput(inputId = "pca_var_ch", 
                         label = "Variable for PCA Plot",
                         choices = colnames(dds()@colData))
         )
     })
     
+    output$color_ui <- renderUI({
+        list(
+            splitLayout(selectInput(inputId = "pal_cat", 
+                                    label = "Categorical Palette",
+                                    choices = rownames(brewer.pal.info[brewer.pal.info$category == "qual",]),
+                                    selected = "Set2"),
+                        selectInput(inputId = "pal_con", 
+                                    label = "Continuous Palette",
+                                    choices = rownames(brewer.pal.info[brewer.pal.info$category != "qual",]),
+                                    selected = "Spectral")),
+            materialSwitch(
+                inputId = "pal_dir",
+                label = "Reverse Scale Color Direction",
+                value = FALSE,
+                right = TRUE)
+        )
+    })
+    
+    output$cluster_switch <- renderUI({
+            materialSwitch(
+                inputId = "cluster_sw",
+                label = "K-means Clustering Mode",
+                value = FALSE,
+                right = TRUE)
+    })
+    
+    output$cluster_ui <- renderUI({
+        validate(
+            need(input$cluster_sw == TRUE, "")
+        )
+        list(
+            splitLayout(numericInput(inputId = "n_cluster",
+                                     label = "No. of K-means Clusters",
+                                     value = 3),
+                        actionButton(
+                            inputId = "assign_clu",
+                            label = "Assign K-means Cluster",
+                            icon = icon("bar-chart"),
+                            style = "color: white; background-color: #2ca25f;margin-top: 25px;
+                                    float:right;
+                                    margin-right: 5px;"),
+                        cellWidths = c("33%", "67%")
+                        )
+                        
+        )
+    })
+    
+    
+    km_res <- reactive({
+        
+        vsd_km(vsd(), input$n_cluster)
+        
+    })
+    
+    observeEvent(input$assign_clu, {
+        
+        dds(assign_km_clu(dds(), km_res()))
+        vsd(assign_km_clu(vsd(), km_res()))
+        
+    })
+
+    
     output$pca <- renderPlot({
         validate(
-            need(try(vsd()), "VSD object not computed. PCA not available.")
+            need(vsd(), "VSD object not computed. PCA not available.")
         )
-        dds_pca(dds(), vsd(), input$pca_var_ch, "Set1", 1)
+        if (input$cluster_sw == TRUE) {
+            
+            dds_pca_km(vsd(), km_res(), input$pal_cat)
+            
+        } else if (is.numeric(dds()@colData[[input$pca_var_ch]])) {
+            dds_pca(dds(), 
+                    vsd(), 
+                    input$pca_var_ch, 
+                    input$pal_con,
+                    ifelse(input$pal_dir, 1, -1))
+        } else {
+            dds_pca(dds(), 
+                    vsd(), 
+                    input$pca_var_ch, 
+                    input$pal_cat)
+        }
     })
+    
     
     # RNA
     

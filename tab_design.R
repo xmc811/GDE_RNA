@@ -49,8 +49,16 @@ tab_file <- tabPanel(
                 uiOutput("pca_var_ui")
             ),
             conditionalPanel(
-                condition = "input.count_panel == 1",
-                uiOutput("plot_pca")
+                condition = "input.count_panel == 2",
+                uiOutput("color_ui")
+            ),
+            conditionalPanel(
+                condition = "input.count_panel == 2",
+                uiOutput("cluster_switch")
+            ),
+            conditionalPanel(
+                condition = "input.count_panel == 2",
+                uiOutput("cluster_ui")
             ),
             tags$head(tags$style(HTML("
                               .shiny-split-layout > div {
