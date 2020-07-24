@@ -45,11 +45,13 @@ tab_file <- tabPanel(
                 uiOutput("compute_button")
             ),
             conditionalPanel(
-                condition = "input.count_panel == 2",
+                condition = "input.count_panel == 2 ||
+                input.count_panel == 3",
                 uiOutput("pca_var_ui")
             ),
             conditionalPanel(
-                condition = "input.count_panel == 2",
+                condition = "input.count_panel == 2 ||
+                input.count_panel == 3",
                 uiOutput("color_ui")
             ),
             conditionalPanel(
@@ -93,6 +95,12 @@ tab_file <- tabPanel(
                     title = "PCA",
                     br(),
                     plotOutput("pca")
+                ),
+                tabPanel(
+                    value = 3,
+                    title = "Heatmap",
+                    br(),
+                    plotOutput("hm")
                 )
             )
         )

@@ -202,10 +202,13 @@ server <- function(input, output, session) {
     # PCA Plot
     
     output$pca_var_ui <- renderUI({
+        validate(
+            need(!is.null(vsd()), "")
+        )
         list(
             selectInput(inputId = "pca_var_ch", 
-                        label = "Variable for PCA Plot",
-                        choices = colnames(dds()@colData))
+                        label = "Variable for PCA Plot and Heatmap",
+                        choices = colnames(vsd()@colData))
         )
     })
     
@@ -277,20 +280,29 @@ server <- function(input, output, session) {
         )
         if (input$cluster_sw == TRUE) {
             
-            dds_pca_km(vsd(), km_res(), input$pal_cat)
+            vsd_pca_km(vsd(), km_res(), input$pal_cat)
             
         } else if (is.numeric(dds()@colData[[input$pca_var_ch]])) {
-            dds_pca(dds(), 
+            vsd_pca(dds(), 
                     vsd(), 
                     input$pca_var_ch, 
                     input$pal_con,
                     ifelse(input$pal_dir, 1, -1))
         } else {
-            dds_pca(dds(), 
+            vsd_pca(dds(), 
                     vsd(), 
                     input$pca_var_ch, 
                     input$pal_cat)
         }
+    })
+    
+    # Sample Distances
+    
+    output$hm <- renderPlot({
+        validate(
+            need(vsd(), "VSD object not computed. Heatmap not available.")
+        )
+        vsd_hm(vsd(), input$pca_var_ch, input$pal_con, input$pal_dir)
     })
     
     
