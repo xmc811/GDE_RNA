@@ -198,12 +198,32 @@ mtx_name_match <- function(mtx, metadata, sample_col, file_col, cutoff) {
     
 }
 
+
+
+
 get_count_message <- function(mtx) {
     
     msg <- paste0(ncol(mtx), 
                   " HTSeq count files uploaded\n",
                   "Number of genes: ", nrow(mtx))
     return(msg)
+}
+
+filter_mt <- function(mtx, metadata) {
+    
+    metadata[match(colnames(mtx), metadata[["Sample"]]),]
+    
+}
+
+cts_to_dds <- function(mtx, metadata) {
+    
+    library(DESeq2)
+    
+    dds <- DESeqDataSetFromMatrix(countData = mtx,
+                                  colData = metadata,
+                                  design= ~ 1)
+    dds <- DESeq(dds)
+    return(dds)
 }
 
 

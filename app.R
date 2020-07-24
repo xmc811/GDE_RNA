@@ -31,19 +31,19 @@ server <- function(input, output, session) {
     output$upload_panel <- renderUI({
         
         list(
-        h4("Data Source"),
-        splitLayout(radioGroupButtons(inputId = "count_source",
-                                      label = NULL,
-                                      choices = c("Example","Upload","Select"),
-                                      justified = TRUE),
-                    actionButton(
-                        inputId = "count_start",
-                        label = "Upload",
-                        icon = icon("bar-chart"),
-                        style = "color: white; background-color: #0570b0;
+            h4("Data Source"),
+            splitLayout(radioGroupButtons(inputId = "count_source",
+                                          label = NULL,
+                                          choices = c("Example","Upload","Select"),
+                                          justified = TRUE),
+                        actionButton(
+                            inputId = "count_start",
+                            label = "Upload",
+                            icon = icon("bar-chart"),
+                            style = "color: white; background-color: #0570b0;
                             float:right; margin-right: 5px;"),
-                    
-                    cellWidths = c("67%", "33%"))
+                        
+                        cellWidths = c("67%", "33%"))
         )
     })
     
@@ -52,7 +52,7 @@ server <- function(input, output, session) {
                     roots = c(home = "~/"),
                     filetypes = "tsv")
     
-    metadata <- eventReactive(input$count_start, {
+    mt_raw <- eventReactive(input$count_start, {
         
         if (input$count_source == "Example") {
             
@@ -66,22 +66,25 @@ server <- function(input, output, session) {
     })
     
     cts_raw <- eventReactive(input$count_start,{
-    
+        
         if (input$count_source == "Example") {
             
             readRDS("./data/example_mtx.rds")
             
         } else if (input$count_source == "Upload"){
             
-                roots <- c(home = "~/")
-                files_path <- parseFilePaths(roots, 
-                                             input$count_upload)$datapath
-                htseq_to_mtx(files_path)
+            roots <- c(home = "~/")
+            files_path <- parseFilePaths(roots, 
+                                         input$count_upload)$datapath
+            htseq_to_mtx(files_path)
             
         } else {}
     })
     
     output$mt_message <- renderText({
+        validate(
+            need(input$count_source,"")
+        )
         if (input$count_source == "Example") {
             
         } else if (input$count_source == "Upload") {
@@ -90,10 +93,13 @@ server <- function(input, output, session) {
                      "Please Upload Metadata")
             )
         } else {}
-        paste0("Metadata uploaded: ", nrow(metadata()), " rows")
+        paste0("Metadata uploaded: ", nrow(mt_raw()), " rows")
     })
     
     output$count_message <- renderText({
+        validate(
+            need(input$count_source,"")
+        )
         if (input$count_source == "Example") {
             
         } else if (input$count_source == "Upload") {
@@ -104,8 +110,11 @@ server <- function(input, output, session) {
         } else {}
         get_count_message(cts_raw())
     })
-        
+    
     output$cts_proc <- renderUI({
+        validate(
+            need(input$count_source,"")
+        )
         if (input$count_source == "Example") {
             
         } else if (input$count_source == "Upload") {
@@ -118,10 +127,10 @@ server <- function(input, output, session) {
             h4("File-Sample Name Matching"),
             selectInput(inputId = "meta_sample_col", 
                         label = "Sample Column",
-                        choices = colnames(metadata())),
+                        choices = colnames(mt_raw())),
             selectInput(inputId = "meta_file_col", 
                         label = "File Name Column",
-                        choices = colnames(metadata())),
+                        choices = colnames(mt_raw())),
             h4("Count cutoff (count data row sums < n)"),
             numericInput(inputId = "count_co",
                          label = NULL,
@@ -136,10 +145,16 @@ server <- function(input, output, session) {
     
     cts <- eventReactive(input$cts_start, {
         mtx_name_match(cts_raw(), 
-                       metadata(), 
+                       mt_raw(), 
                        input$meta_sample_col,
                        input$meta_file_col,
                        input$count_co)
+    })
+    
+    mt <- eventReactive(input$cts_start, {
+        
+        filter_mt(cts(), mt_raw())
+        
     })
     
     output$cts_summary <- renderPrint({
@@ -149,7 +164,7 @@ server <- function(input, output, session) {
         )
         trubble(cts())
     })
-
+    
     # RNA
     
     observeEvent(input$rna_start, {
@@ -335,4 +350,3 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui = ui, server = server)
-
