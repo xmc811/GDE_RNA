@@ -60,6 +60,29 @@ deseq_pca <- function(dds, var, palette, dir) {
     }})
 }
 
+
+dds_pca <- function(dds, vsd, var, palette, dir) {
+    
+    withProgress(message = "Plotting...", value = 0, {
+        
+        if (is.numeric(dds@colData[[var]])) {
+            
+            DESeq2::plotPCA(vsd, intgroup = var) +
+                scale_color_distiller(palette = palette, direction = dir) +
+                labs(color = var) +
+                theme_bw() +
+                theme(aspect.ratio = 1)
+            
+        } else {
+            
+            DESeq2::plotPCA(vsd, intgroup = var) +
+                scale_color_brewer(palette = palette) +
+                labs(color = var) +
+                theme_bw() +
+                theme(aspect.ratio = 1)
+        }})
+}
+
 deseq_ma <- function(res, p_co, lfc_co, lfc_plot_lim = 5) {
     
     withProgress(message = "Plotting...", value = 0, {

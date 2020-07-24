@@ -199,16 +199,25 @@ server <- function(input, output, session) {
         paste0("Computing Done")
     })
     
-    output$pca <- renderPlot({
+    # PCA Plot
+    
+    output$pca_var_ui <- renderUI({
         validate(
             need(try(vsd()), "")
         )
-        DESeq2::plotPCA(vsd(), intgroup = "Sample") +
-            scale_color_brewer(palette = "Set1") +
-            labs(color = "Sample") +
-            theme_bw() +
-            theme(aspect.ratio = 1)
-        
+        list(
+            h4("Variable"),
+            selectInput(inputId = "pca_var_ch", 
+                        label = "Variable for PCA Plot",
+                        choices = colnames(dds()@colData))
+        )
+    })
+    
+    output$pca <- renderPlot({
+        validate(
+            need(try(vsd()), "VSD object not computed. PCA not available.")
+        )
+        dds_pca(dds(), vsd(), input$pca_var_ch, "Set1", 1)
     })
     
     # RNA

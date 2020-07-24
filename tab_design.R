@@ -32,17 +32,25 @@ tab_file <- tabPanel(
                              input.count_panel == 1",
                 fileInput(inputId = "meta_input",
                           label = NULL,
-                          buttonLabel = "Upload Metadata..")
+                          buttonLabel = "Upload Metadata.."),
+                br()
             ),
-            br(),
             conditionalPanel(
                 condition = "input.count_panel == 1",
-                uiOutput("cts_proc")
+                uiOutput("cts_proc"),
+                br()
             ),
-            br(),
             conditionalPanel(
                 condition = "input.count_panel == 1",
                 uiOutput("compute_button")
+            ),
+            conditionalPanel(
+                condition = "input.count_panel == 2",
+                uiOutput("pca_var_ui")
+            ),
+            conditionalPanel(
+                condition = "input.count_panel == 1",
+                uiOutput("plot_pca")
             ),
             tags$head(tags$style(HTML("
                               .shiny-split-layout > div {
@@ -74,7 +82,7 @@ tab_file <- tabPanel(
                 ),
                 tabPanel(
                     value = 2,
-                    title = "Summary",
+                    title = "PCA",
                     br(),
                     plotOutput("pca")
                 )
