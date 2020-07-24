@@ -59,7 +59,9 @@ vsd_hm <- function(vsd, var, palette, dir) {
         
         Heatmap(sampleDistMatrix, 
                 col = col_fun,
-                rect_gp = gpar(col = "white", lwd = 2))
+                rect_gp = gpar(col = "white", lwd = 2),
+                heatmap_width = unit(1, "npc"), 
+                heatmap_height = unit(1, "npc"))
         
 }
 

@@ -272,6 +272,24 @@ server <- function(input, output, session) {
         vsd(assign_km_clu(vsd(), km_res()))
         
     })
+    
+    # Plot Size
+    
+    plot_height <- reactive({
+        validate(
+            need(input$plot_height < 4000, 
+                 "Plot height shouldn't exceed 4000px.")
+        )
+        return(input$plot_height)
+    })
+    
+    plot_width <- reactive({
+        validate(
+            need(input$plot_width < 4000, 
+                 "Plot width shouldn't exceed 4000px.")
+        )
+        return(input$plot_width)
+    })
 
     
     output$pca <- renderPlot({
@@ -294,7 +312,10 @@ server <- function(input, output, session) {
                     input$pca_var_ch, 
                     input$pal_cat)
         }
-    })
+    },
+    height = plot_height,
+    width = plot_width
+    )
     
     # Sample Distances
     
@@ -303,7 +324,10 @@ server <- function(input, output, session) {
             need(vsd(), "VSD object not computed. Heatmap not available.")
         )
         vsd_hm(vsd(), input$pca_var_ch, input$pal_con, input$pal_dir)
-    })
+    },
+    height = plot_height,
+    width = plot_width
+    )
     
     
     # RNA

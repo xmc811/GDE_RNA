@@ -62,6 +62,17 @@ tab_file <- tabPanel(
                 condition = "input.count_panel == 2",
                 uiOutput("cluster_ui")
             ),
+            conditionalPanel(
+                condition = "input.count_panel != 1",
+                
+                splitLayout(numericInput("plot_height", 
+                                         "Plot Height (px)", 
+                                         value = 600),
+                            numericInput("plot_width", 
+                                         "Plot Width (px)", 
+                                         value = 800),
+                            cellWidths = c("50%", "50%"))
+            ),
             tags$head(tags$style(HTML("
                               .shiny-split-layout > div {
                                 overflow: visible;
