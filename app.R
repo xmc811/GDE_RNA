@@ -28,34 +28,57 @@ ui <- navbarPage(
 # server function
 server <- function(input, output, session) {
     
+    output$upload_panel <- renderUI({
+        
+        list(
+        h4("Data Source"),
+        splitLayout(radioGroupButtons(inputId = "count_source",
+                                      label = NULL,
+                                      choices = c("Example","Upload","Select"),
+                                      justified = TRUE),
+                    actionButton(
+                        inputId = "count_start",
+                        label = "Upload",
+                        icon = icon("bar-chart"),
+                        style = "color: white; background-color: #0570b0;
+                            float:right; margin-right: 5px;"),
+                    
+                    cellWidths = c("67%", "33%"))
+        )
+    })
+    
     shinyFileChoose(input, 
                     id = 'count_upload', 
                     roots = c(home = "~/"),
                     filetypes = "tsv")
     
-    metadata <- reactive({if (input$count_source == "Example") {
+    metadata <- eventReactive(input$count_start, {
         
-        read_csv("./data/metadata.csv")
-        
-    } else if (input$count_source == "Upload") {
-        
-        read_csv(input$meta_input$datapath)
-        
-    } else {}
+        if (input$count_source == "Example") {
+            
+            read_csv("./data/metadata.csv")
+            
+        } else if (input$count_source == "Upload") {
+            
+            read_csv(input$meta_input$datapath)
+            
+        } else {}
     })
     
-    cts_raw <- reactive({if (input$count_source == "Example") {
-        
-        readRDS("./data/example_mtx.rds")
-        
-    } else if (input$count_source == "Upload"){
-        
-            roots <- c(home = "~/")
-            files_path <- parseFilePaths(roots, 
-                                         input$count_upload)$datapath
-            htseq_to_mtx(files_path)
-        
-    } else {}
+    cts_raw <- eventReactive(input$count_start,{
+    
+        if (input$count_source == "Example") {
+            
+            readRDS("./data/example_mtx.rds")
+            
+        } else if (input$count_source == "Upload"){
+            
+                roots <- c(home = "~/")
+                files_path <- parseFilePaths(roots, 
+                                             input$count_upload)$datapath
+                htseq_to_mtx(files_path)
+            
+        } else {}
     })
     
     output$mt_message <- renderText({
@@ -83,10 +106,14 @@ server <- function(input, output, session) {
     })
         
     output$cts_proc <- renderUI({
-        validate(
-            need(try(metadata()), "Please Upload Metadata"),
-            need(try(cts_raw()), "Please Upload Count Data")
-        )
+        if (input$count_source == "Example") {
+            
+        } else if (input$count_source == "Upload") {
+            validate(
+                need(input$meta_input, "Please Upload Metadata"),
+                need(input$count_upload, "Please Upload Count Data")
+            )
+        } else {}
         list(
             h4("File-Sample Name Matching"),
             selectInput(inputId = "meta_sample_col", 
@@ -101,9 +128,9 @@ server <- function(input, output, session) {
                          value = 10),
             actionButton(
                 inputId = "cts_start",
-                label = "Launch",
+                label = "Pre-Process",
                 icon = icon("bar-chart"),
-                style = "color: white; background-color: #0570b0")
+                style = "color: white; background-color: #2ca25f")
         )
     })
     
@@ -118,7 +145,7 @@ server <- function(input, output, session) {
     output$cts_summary <- renderPrint({
         validate(
             need(try(cts()), ""),
-            need(nrow(cts()) >= 1, "Name matching returns count matrix with 0 samples.\nPlease make sure the columns of sample names and files names are chosen correctly.")
+            need(ncol(cts()) >= 1, "Name matching returns count matrix with 0 samples.\nPlease make sure the columns of sample names and files names are chosen correctly.")
         )
         trubble(cts())
     })

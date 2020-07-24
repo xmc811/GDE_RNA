@@ -192,7 +192,7 @@ mtx_name_match <- function(mtx, metadata, sample_col, file_col, cutoff) {
     
     colnames(mtx) <- metadata[[sample_col]][idx]
     
-    mtx <- mtx[rowSums(mtx >= cutoff),]
+    mtx <- mtx[rowSums(mtx) >= cutoff,]
     
     return(mtx)
     
