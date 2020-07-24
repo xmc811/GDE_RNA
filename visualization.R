@@ -39,11 +39,15 @@ deseq_heatmap <- function(dds, var, palette, dir) {
 
 vsd_hm <- function(vsd, var, palette, dir) {
     
+    withProgress(message = "Plotting...", value = 0, {
+    
         sampleDists <- dist(t(SummarizedExperiment::assay(vsd)))
         
         sampleDistMatrix <- as.matrix(sampleDists)
         rownames(sampleDistMatrix) <- vsd[[var]]
         colnames(sampleDistMatrix) <- vsd[[var]]
+        
+        sampleDistMatrix <- log2(sampleDistMatrix + 1)
         
         num <- num_colors(palette)
         
@@ -53,16 +57,18 @@ vsd_hm <- function(vsd, var, palette, dir) {
             colors <- rev(colors)
         }
         
-        col_fun <- colorRamp2(seq(from = 0, 
+        col_fun <- colorRamp2(seq(from = quantile(sampleDistMatrix, 
+                                                  1/nrow(sampleDistMatrix)), 
                                   to = max(sampleDistMatrix), 
                                   length.out = num), colors)
         
+       
         Heatmap(sampleDistMatrix, 
                 col = col_fun,
                 rect_gp = gpar(col = "white", lwd = 2),
                 heatmap_width = unit(1, "npc"), 
                 heatmap_height = unit(1, "npc"))
-        
+    })
 }
 
 

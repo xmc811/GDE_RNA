@@ -323,7 +323,10 @@ server <- function(input, output, session) {
         validate(
             need(vsd(), "VSD object not computed. Heatmap not available.")
         )
-        vsd_hm(vsd(), input$pca_var_ch, input$pal_con, input$pal_dir)
+        vsd_hm(vsd(), 
+               input$pca_var_ch, 
+               input$pal_con, 
+               input$pal_dir)
     },
     height = plot_height,
     width = plot_width
