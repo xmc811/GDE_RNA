@@ -31,6 +31,8 @@ server <- function(input, output, session) {
     output$upload_panel <- renderUI({
         
         list(
+            h3("RNA-seq Raw Data Input"),
+            br(),
             h4("Data Source"),
             splitLayout(radioGroupButtons(inputId = "count_source",
                                           label = NULL,
@@ -165,6 +167,19 @@ server <- function(input, output, session) {
         trubble(cts())
     })
     
+    output$compute_button <- renderUI({
+        validate(
+            need(try(cts()),""),
+            need(try(mt()),"")
+        )
+        actionButton(
+            inputId = "cts_compute",
+            label = "Compute",
+            icon = icon("bar-chart"),
+            style = "color: white; background-color: #0570b0;")
+        
+    })
+    
     dds <- eventReactive(input$cts_compute, {
         
         cts_to_dds(cts(), mt())
@@ -174,6 +189,7 @@ server <- function(input, output, session) {
         
         DESeq2::vst(dds(), blind = FALSE)
     })
+    
     
     output$compute_message <- renderText({
         validate(

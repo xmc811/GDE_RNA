@@ -9,10 +9,7 @@ tab_file <- tabPanel(
     value = "v_file",
     
     sidebarLayout(
-        
         sidebarPanel = sidebarPanel(
-            h3("RNA-seq Raw Count Input"),
-            br(),
             conditionalPanel(
                 condition = "input.count_panel == 1",
                 uiOutput("upload_panel")
@@ -42,13 +39,10 @@ tab_file <- tabPanel(
                 condition = "input.count_panel == 1",
                 uiOutput("cts_proc")
             ),
+            br(),
             conditionalPanel(
-                condition = "input.count_panel == 2",
-                actionButton(
-                    inputId = "cts_compute",
-                    label = "Compute",
-                    icon = icon("bar-chart"),
-                    style = "color: white; background-color: #0570b0;")
+                condition = "input.count_panel == 1",
+                uiOutput("compute_button")
             ),
             tags$head(tags$style(HTML("
                               .shiny-split-layout > div {
@@ -75,13 +69,13 @@ tab_file <- tabPanel(
                     br(),
                     verbatimTextOutput("mt_message"),
                     verbatimTextOutput("count_message"),
-                    verbatimTextOutput("cts_summary")
+                    verbatimTextOutput("cts_summary"),
+                    verbatimTextOutput("compute_message")
                 ),
                 tabPanel(
                     value = 2,
                     title = "Summary",
                     br(),
-                    verbatimTextOutput("compute_message"),
                     plotOutput("pca")
                 )
             )
