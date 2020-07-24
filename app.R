@@ -165,6 +165,36 @@ server <- function(input, output, session) {
         trubble(cts())
     })
     
+    dds <- eventReactive(input$cts_compute, {
+        
+        cts_to_dds(cts(), mt())
+    })
+    
+    vsd <- eventReactive(input$cts_compute, {
+        
+        DESeq2::vst(dds(), blind = FALSE)
+    })
+    
+    output$compute_message <- renderText({
+        validate(
+            need(try(dds()), ""),
+            need(try(vsd()), "")
+        )
+        paste0("Computing Done")
+    })
+    
+    output$pca <- renderPlot({
+        validate(
+            need(try(vsd()), "")
+        )
+        DESeq2::plotPCA(vsd(), intgroup = "Sample") +
+            scale_color_brewer(palette = "Set1") +
+            labs(color = "Sample") +
+            theme_bw() +
+            theme(aspect.ratio = 1)
+        
+    })
+    
     # RNA
     
     observeEvent(input$rna_start, {

@@ -42,6 +42,14 @@ tab_file <- tabPanel(
                 condition = "input.count_panel == 1",
                 uiOutput("cts_proc")
             ),
+            conditionalPanel(
+                condition = "input.count_panel == 2",
+                actionButton(
+                    inputId = "cts_compute",
+                    label = "Compute",
+                    icon = icon("bar-chart"),
+                    style = "color: white; background-color: #0570b0;")
+            ),
             tags$head(tags$style(HTML("
                               .shiny-split-layout > div {
                                 overflow: visible;
@@ -72,7 +80,9 @@ tab_file <- tabPanel(
                 tabPanel(
                     value = 2,
                     title = "Summary",
-                    br()
+                    br(),
+                    verbatimTextOutput("compute_message"),
+                    plotOutput("pca")
                 )
             )
         )
@@ -382,3 +392,4 @@ tab_about <- tabPanel(
     )
     
 )
+
