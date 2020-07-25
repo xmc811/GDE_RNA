@@ -45,6 +45,14 @@ tab_file <- tabPanel(
                 uiOutput("compute_button")
             ),
             conditionalPanel(
+                condition = "input.count_panel == 2 ",
+                h3("PCA Plot")
+            ),
+            conditionalPanel(
+                condition = "input.count_panel == 3 ",
+                h3("Sample Distance Heatmap")
+            ),
+            conditionalPanel(
                 condition = "input.count_panel == 2 ||
                 input.count_panel == 3",
                 uiOutput("pca_var_ui")
@@ -63,8 +71,8 @@ tab_file <- tabPanel(
                 uiOutput("cluster_ui")
             ),
             conditionalPanel(
-                condition = "input.count_panel != 1",
-                
+                condition = "input.count_panel == 2 ||
+                input.count_panel == 3",
                 splitLayout(numericInput("plot_height", 
                                          "Plot Height (px)", 
                                          value = 600),
@@ -72,6 +80,11 @@ tab_file <- tabPanel(
                                          "Plot Width (px)", 
                                          value = 800),
                             cellWidths = c("50%", "50%"))
+            ),
+            conditionalPanel(
+                condition = "input.count_panel == 4",
+                uiOutput("dge_var"),
+                uiOutput("dge_group")
             ),
             tags$head(tags$style(HTML("
                               .shiny-split-layout > div {
@@ -112,6 +125,12 @@ tab_file <- tabPanel(
                     title = "Heatmap",
                     br(),
                     plotOutput("hm")
+                ),
+                tabPanel(
+                    value = 4,
+                    title = "DGE Run",
+                    br(),
+                    verbatimTextOutput("dge_message")
                 )
             )
         )

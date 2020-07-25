@@ -241,6 +241,14 @@ assign_km_clu <- function(vsd, km_res) {
     
 }
 
+assign_km_clu_col <- function(coldata, km_res) {
+    
+    coldata$Kmeans <- LETTERS[km_res$cluster]
+    
+    return(coldata)
+    
+}
+
 
 trubble <- function(cts) {
     tmp <- as.data.frame(

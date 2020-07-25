@@ -153,11 +153,13 @@ server <- function(input, output, session) {
                        input$count_co)
     })
     
-    mt <- eventReactive(input$cts_start, {
+    mt <- reactiveVal()
+    
+    observeEvent(input$cts_start,{
         
-        filter_mt(cts(), mt_raw())
-        
+        mt(filter_mt(cts(), mt_raw()))
     })
+    
     
     output$cts_summary <- renderPrint({
         validate(
@@ -255,7 +257,6 @@ server <- function(input, output, session) {
                                     margin-right: 5px;"),
                         cellWidths = c("33%", "67%")
                         )
-                        
         )
     })
     
@@ -270,6 +271,7 @@ server <- function(input, output, session) {
         
         dds(assign_km_clu(dds(), km_res()))
         vsd(assign_km_clu(vsd(), km_res()))
+        mt(assign_km_clu_col(mt(), km_res()))
         
     })
     
@@ -316,6 +318,29 @@ server <- function(input, output, session) {
     height = plot_height,
     width = plot_width
     )
+    
+    output$dge_var <- renderUI({
+            selectInput(inputId = "dge_var_ch", 
+                        label = "Variable for DGE",
+                        choices = colnames(mt()))
+    })
+    
+    output$dge_group <- renderUI({
+            splitLayout(selectInput(inputId = "dge_g1", 
+                                    label = "Group 1",
+                                    choices = unique(mt()[[input$dge_var_ch]])),
+                        selectInput(inputId = "dge_g2", 
+                                    label = "Group 2",
+                                    choices = unique(mt()[[input$dge_var_ch]]))
+        )
+    })
+    
+    output$dge_message <- renderText({
+        validate(
+            need(res(), "Hehe"),
+        )
+        paste0("DGE Done")
+    })
     
     # Sample Distances
     
