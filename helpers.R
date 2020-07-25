@@ -215,13 +215,13 @@ filter_mt <- function(mtx, metadata) {
     
 }
 
-cts_to_dds <- function(mtx, metadata) {
+cts_to_dds <- function(mtx, metadata, var = 1) {
     
     withProgress(message = "Loading Data..", value = 0.3, {
     
     dds <- DESeq2::DESeqDataSetFromMatrix(countData = mtx,
                                   colData = metadata,
-                                  design= ~ 1)
+                                  design= as.formula(paste0("~", var)))
     
     incProgress(0.5, message = "Building DESeq2 Data Objects..")
     

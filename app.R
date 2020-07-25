@@ -319,27 +319,67 @@ server <- function(input, output, session) {
     width = plot_width
     )
     
+    # DGE
+    
     output$dge_var <- renderUI({
+        validate(
+            need(try(mt()),"")
+        )
             selectInput(inputId = "dge_var_ch", 
                         label = "Variable for DGE",
                         choices = colnames(mt()))
     })
     
-    output$dge_group <- renderUI({
-            splitLayout(selectInput(inputId = "dge_g1", 
-                                    label = "Group 1",
-                                    choices = unique(mt()[[input$dge_var_ch]])),
-                        selectInput(inputId = "dge_g2", 
-                                    label = "Group 2",
-                                    choices = unique(mt()[[input$dge_var_ch]]))
+    output$dge_group1 <- renderUI({
+        validate(
+            need(try(mt()),"")
         )
+        selectInput(inputId = "dge_g1", 
+                    label = "Group 1",
+                    choices = unique(mt()[[input$dge_var_ch]]))
+        
     })
+    
+    output$dge_group2 <- renderUI({
+        validate(
+            need(try(mt()),"")
+        )
+        selectInput(inputId = "dge_g2", 
+                    label = "Group 2",
+                    choices = setdiff(unique(mt()[[input$dge_var_ch]]),
+                                      input$dge_g1))
+    })
+    
+    output$dge_button <- renderUI({
+        validate(
+            need(try(cts()),""),
+            need(try(mt()),"")
+        )
+        actionButton(
+            inputId = "dge_start",
+            label = "Start DGE",
+            icon = icon("bar-chart"),
+            style = "color: white; background-color: #0570b0;")
+    })
+    
+    dds_run <- reactiveVal()
+    res <- reactiveVal()
+    
+    observeEvent(input$dge_start,{
+        
+        dds_run(cts_to_dds(cts(), mt(), input$dge_var_ch))
+        res(DESeq2::results(dds_run(), 
+                            contrast = c(input$dge_var_ch, 
+                                         input$dge_g1, 
+                                         input$dge_g2)))
+    })
+    
     
     output$dge_message <- renderText({
         validate(
-            need(res(), "Hehe"),
+            need(try(res()), "")
         )
-        paste0("DGE Done")
+        paste0("DGE Done", dim(res()))
     })
     
     # Sample Distances

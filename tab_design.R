@@ -84,7 +84,9 @@ tab_file <- tabPanel(
             conditionalPanel(
                 condition = "input.count_panel == 4",
                 uiOutput("dge_var"),
-                uiOutput("dge_group")
+                uiOutput("dge_group1"),
+                uiOutput("dge_group2"),
+                uiOutput("dge_button")
             ),
             tags$head(tags$style(HTML("
                               .shiny-split-layout > div {
