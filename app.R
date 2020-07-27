@@ -198,7 +198,7 @@ server <- function(input, output, session) {
             need(!is.null(dds()), ""),
             need(!is.null(vsd()), "")
         )
-        paste0("Computing Done")
+        paste0("Initial computation done.\nYou can explore your data in other panels.")
     })
     
     # PCA Plot
@@ -379,7 +379,11 @@ server <- function(input, output, session) {
         validate(
             need(try(res()), "")
         )
-        paste0("DGE Done", dim(res()))
+        paste0("Differential gene expression (DGE) analysis done\n",
+               res()@elementMetadata[2,2] %>%
+                   str_remove("^.*:") %>%
+                   str_trim(), "\n",
+               "You can visualize your data in the 'Visualization' tab.")
     })
     
     # Sample Distances
