@@ -411,7 +411,37 @@ server <- function(input, output, session) {
     width = plot_width
     )
     
-    # DGE Visualization
+    
+    # DGE Visualization Parameters
+    
+    output$viz_plot_size <- renderUI({
+        splitLayout(numericInput("viz_plot_height", 
+                                 "Plot Height (px)", 
+                                 value = 600),
+                    numericInput("viz_plot_width", 
+                                 "Plot Width (px)", 
+                                 value = 800),
+                    cellWidths = c("50%", "50%"))
+    })
+    
+    viz_plot_height <- reactive({
+        validate(
+            need(input$plot_height < 4000, 
+                 "Plot height shouldn't exceed 4000px.")
+        )
+        return(input$viz_plot_height)
+    })
+    
+    viz_plot_width <- reactive({
+        validate(
+            need(input$plot_width < 4000, 
+                 "Plot width shouldn't exceed 4000px.")
+        )
+        return(input$viz_plot_width)
+    })
+    
+    
+    # DGE Visualization Panels
     
     output$res_table <- DT::renderDataTable({
         validate(
@@ -422,6 +452,19 @@ server <- function(input, output, session) {
                     input$lfc_co)
     })
     
+    
+    
+    output$res_ma <- renderPlot({
+        validate(
+            need(try(res()), "No DGE results. Plot not available.")
+        )
+        deseq_ma(res(),
+                 input$p_co, 
+                 input$lfc_co,
+                 input$lfc_plot_lim)
+    }, 
+    height = viz_plot_height, 
+    width = viz_plot_width)
     
     # RNA
     
@@ -493,15 +536,6 @@ server <- function(input, output, session) {
                           input$pca_var, 
                           input$palette_cat)
             }
-        }, 
-        height = rna_plot_height, 
-        width = rna_plot_width)
-        
-        output$deseq_ma <- renderPlot({
-            deseq_ma(rna_input()[[2]],
-                     input$p_co, 
-                     input$lfc_co,
-                     input$lfc_plot_lim)
         }, 
         height = rna_plot_height, 
         width = rna_plot_width)

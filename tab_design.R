@@ -296,18 +296,11 @@ tab_rna <- tabPanel(
                                          label = "Log2 Fold Change Squash", 
                                          value = 5)),
             ),
-            
             conditionalPanel(
                 condition = "input.rna_panel != 5",
-                
-                splitLayout(numericInput("rna_plot_height", 
-                                         "Plot Height (px)", 
-                                         value = 600),
-                            numericInput("rna_plot_width", 
-                                         "Plot Width (px)", 
-                                         value = 800),
-                            cellWidths = c("50%", "50%"))
+                uiOutput("viz_plot_size")
             ),
+            
             
             tags$head(tags$style(HTML("
                               .shiny-split-layout > div {
@@ -338,7 +331,7 @@ tab_rna <- tabPanel(
                     value = 3,
                     title = "MA Plot",
                     br(),
-                    plotOutput("deseq_ma", width = "100%") 
+                    plotOutput("res_ma", width = "100%") 
                 ),
                 tabPanel(
                     value = 4,
