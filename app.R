@@ -636,6 +636,19 @@ server <- function(input, output, session) {
     width = viz_plot_width)
     
     
+    output$res_cluster <- renderPlot({
+        validate(
+            need(try(res()), "No DGE results. Plot not available.")
+        )
+        deseq_cluster(dds_run(), 
+                      rna_genes(),
+                      input$viz_pal_con, 
+                      input$viz_pal_dir)
+    }, 
+    height = viz_plot_height, 
+    width = viz_plot_width)
+    
+    
     # RNA
     
     observeEvent(input$rna_start, {
@@ -653,34 +666,8 @@ server <- function(input, output, session) {
             reactive({
                 readRDS(paste0("./large_data/",input$rna_select))})
         }
+
         
-        rna_plot_height <- reactive({
-            validate(
-                need(input$rna_plot_height < 4000, "Plot height shouldn't exceed 4000px.")
-            )
-            return(input$rna_plot_height)
-        })
-        
-        rna_plot_width <- reactive({
-            validate(
-                need(input$rna_plot_width < 4000, "Plot width shouldn't exceed 4000px.")
-            )
-            return(input$rna_plot_width)
-        })
-        
-        
-        
-        
-        
-        
-        output$deseq_cluster <- renderPlot({
-            deseq_cluster(rna_input()[[1]], 
-                          rna_genes(),
-                          input$palette_con, 
-                          input$palette_dir)
-        }, 
-        height = rna_plot_height, 
-        width = rna_plot_width)
         
         
         rna_pathways <- reactive({

@@ -244,7 +244,7 @@ tab_rna <- tabPanel(
                     value = 7,
                     title = "Gene Clustering",
                     br(),
-                    plotOutput("deseq_cluster", width = "100%")
+                    plotOutput("res_cluster")
                 ),
                 tabPanel(
                     value = 8,

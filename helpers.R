@@ -77,7 +77,7 @@ get_mtx_dds <- function(dds, genes, raw = F) {
     if (raw) {
         vsd <- counts(dds)
     } else {
-        vsd <- vst(dds, blind = FALSE)
+        vsd <- DESeq2::vst(dds, blind = FALSE)
         vsd <- as.matrix(vsd@assays@data[[1]])
     }
     
