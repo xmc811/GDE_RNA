@@ -542,6 +542,23 @@ server <- function(input, output, session) {
             )
         })
     
+    output$pathway_ui <- renderUI({
+        list(
+            h4("Pathway List"),
+            splitLayout(radioGroupButtons(inputId = "rna_pathway_src",
+                                          label = NULL,
+                                          choices = c("Use Hallmarks",
+                                                      "Upload File"),
+                                          justified = TRUE),
+                        cellWidths = "67%"),
+            conditionalPanel(
+                condition = "input.rna_pathway_src == 'Upload File'",
+                fileInput(inputId = "rna_pathway_file",
+                          label = NULL,
+                          buttonLabel = "Browse.."))
+        )
+    })
+    
     
     # DGE Visualization Parameters
     
@@ -581,6 +598,21 @@ server <- function(input, output, session) {
                 readLines(input$rna_genes_file$datapath)
             }}
         )
+    
+    rna_pathways <- reactive({
+        
+        if(input$rna_pathway_src == 'Use Hallmarks') {
+            hmks_hs
+        } else {
+            validate(
+                need(input$rna_pathway_file, "Please Upload Pathway File")
+            )
+            read_csv(input$rna_pathway_file$datapath, 
+                     col_names = FALSE) %>%
+                df_to_signature()
+        }}
+        )
+    
     
     # DGE Visualization Panels
     
@@ -649,53 +681,16 @@ server <- function(input, output, session) {
     width = viz_plot_width)
     
     
-    # RNA
+    output$res_gsea <- renderPlot({
+        deseq_gsea(res(),
+                   rna_pathways())
+    }, 
+    height = viz_plot_height, 
+    width = viz_plot_width)
     
-    observeEvent(input$rna_start, {
-        
-        rna_input <- if(input$data_source == "Example") {
-            reactive({readRDS("./large_data/rnaseq.rds")})
-        } else if (input$data_source == "Upload"){
-            reactive({
-                validate(
-                    need(input$rna_input, 
-                         "Please Upload Data")
-                )
-                readRDS(input$rna_input$datapath)})
-        } else {
-            reactive({
-                readRDS(paste0("./large_data/",input$rna_select))})
-        }
+    
+    # Help
 
-        
-        
-        
-        rna_pathways <- reactive({
-            
-            if(input$rna_pathway_src == 'Use Hallmarks') {
-                
-                hmks_hs
-                
-            } else {
-                
-                validate(
-                    need(input$rna_pathway_file, "Please Upload Pathway File")
-                )
-                read_csv(input$rna_pathway_file$datapath, 
-                         col_names = FALSE) %>%
-                    df_to_signature()
-                
-            }})
-        
-        output$deseq_gsea <- renderPlot({
-            deseq_gsea(rna_input()[[2]],
-                       rna_pathways())
-        }, 
-        height = rna_plot_height, 
-        width = rna_plot_width)
-        
-    })
-    
     output$pdfview <- renderUI({
         tags$iframe(style = "height:700px; width:100%", 
                     src = "GDE_User_Guide_07102020.pdf")

@@ -149,12 +149,10 @@ tab_rna <- tabPanel(
         sidebarPanel = sidebarPanel(
             h3("RNA DGE Visualization"),
             br(),
-            
             conditionalPanel(
                 condition = " input.rna_panel == 6",
                 uiOutput("rna_var"),
             ),
-            
             conditionalPanel(
                 condition = "input.rna_panel == 3 || 
                             input.rna_panel == 4 || 
@@ -177,25 +175,12 @@ tab_rna <- tabPanel(
                 uiOutput("squash_params")
             ),
             conditionalPanel(
-                condition = "input.rna_panel != 5",
-                uiOutput("viz_plot_size")
+                condition = "input.rna_panel == 8",
+                uiOutput("pathway_ui")
             ),
             conditionalPanel(
-                condition = "input.rna_panel == 8",
-                
-                h4("Pathway List"),
-                splitLayout(radioGroupButtons(inputId = "rna_pathway_src",
-                                              label = NULL,
-                                              choices = c("Use Hallmarks",
-                                                          "Upload File"),
-                                              justified = TRUE),
-                            cellWidths = "67%"),
-                
-                conditionalPanel(
-                    condition = "input.rna_pathway_src == 'Upload File'",
-                    fileInput(inputId = "rna_pathway_file",
-                              label = NULL,
-                              buttonLabel = "Browse.."))
+                condition = "input.rna_panel != 5",
+                uiOutput("viz_plot_size")
             ),
             tags$head(tags$style(HTML("
                               .shiny-split-layout > div {
@@ -250,7 +235,7 @@ tab_rna <- tabPanel(
                     value = 8,
                     title = "GSEA",
                     br(),
-                    plotOutput("deseq_gsea", width = "100%")
+                    plotOutput("res_gsea")
                 )
             )
         )
