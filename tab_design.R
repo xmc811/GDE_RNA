@@ -151,21 +151,6 @@ tab_rna <- tabPanel(
             br(),
             
             conditionalPanel(
-                condition = "input.data_source == 'Upload'",
-                fileInput(inputId = "rna_input",
-                          label = NULL,
-                          buttonLabel = "Browse..")
-            ),
-            
-            conditionalPanel(
-                condition = "input.data_source == 'Select'",
-                selectInput(inputId = "rna_select", 
-                            label = "RNA-seq results",
-                            choices = list.files("./large_data/"))
-            ),
-            br(),
-            
-            conditionalPanel(
                 condition = "input.rna_panel == 1 || 
                             input.rna_panel == 2 || 
                             input.rna_panel == 6",
@@ -173,20 +158,11 @@ tab_rna <- tabPanel(
                 uiOutput("rna_var"),
             ),
             
-            
             conditionalPanel(
                 condition = "input.rna_panel == 3 || 
                             input.rna_panel == 4 || 
                             input.rna_panel == 5",
-                
-                h4("Differential Gene Expression Parameters"),
-                splitLayout(numericInput("p_co", 
-                                         label = "Adjusted P-value Cutoff", 
-                                         value = 0.05),
-                            numericInput("lfc_co", 
-                                         label = "Log2 Fold Change Cutoff", 
-                                         value = 1)),
-                br()
+                uiOutput("dge_params")
             ),
             
             conditionalPanel(
@@ -283,18 +259,10 @@ tab_rna <- tabPanel(
                     right = TRUE
                 )
             ),
-            
             conditionalPanel(
                 condition = "input.rna_panel == 3 || 
                             input.rna_panel == 4",
-                
-                h4("Plotting Parameters"),
-                splitLayout(numericInput("p_plot_lim", 
-                                         label = "Adjusted P-value Squash", 
-                                         value = 5),
-                            numericInput("lfc_plot_lim", 
-                                         label = "Log2 Fold Change Squash", 
-                                         value = 5)),
+                uiOutput("squash_params")
             ),
             conditionalPanel(
                 condition = "input.rna_panel != 5",
@@ -331,13 +299,13 @@ tab_rna <- tabPanel(
                     value = 3,
                     title = "MA Plot",
                     br(),
-                    plotOutput("res_ma", width = "100%") 
+                    plotOutput("res_ma") 
                 ),
                 tabPanel(
                     value = 4,
                     title = "Volcano Plot",
                     br(),
-                    plotOutput("deseq_volcano")
+                    plotOutput("res_volcano")
                 ),
                 tabPanel(
                     value = 6,

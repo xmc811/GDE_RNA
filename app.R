@@ -412,9 +412,12 @@ server <- function(input, output, session) {
     )
     
     
-    # DGE Visualization Parameters
+    # DGE Visualization UIs and Parameters
     
     output$viz_plot_size <- renderUI({
+        validate(
+            need(try(res()), "")
+        )
         splitLayout(numericInput("viz_plot_height", 
                                  "Plot Height (px)", 
                                  value = 600),
@@ -441,6 +444,38 @@ server <- function(input, output, session) {
     })
     
     
+    output$dge_params <- renderUI({
+        validate(
+            need(try(res()), "")
+        )
+        list(
+        h4("Differential Gene Expression Parameters"),
+        splitLayout(numericInput("p_co", 
+                                 label = "Adjusted P-value Cutoff", 
+                                 value = 0.05),
+                    numericInput("lfc_co", 
+                                 label = "Log2 Fold Change Cutoff", 
+                                 value = 1))
+        )
+    })
+    
+    
+    output$squash_params <- renderUI({
+        validate(
+            need(try(res()), "")
+        )
+        list(
+            h4("Plotting Parameters"),
+            splitLayout(numericInput("p_plot_lim", 
+                                     label = "Adjusted P-value Squash", 
+                                     value = 5),
+                        numericInput("lfc_plot_lim", 
+                                     label = "Log2 Fold Change Squash", 
+                                     value = 5))
+        )
+    })
+    
+    
     # DGE Visualization Panels
     
     output$res_table <- DT::renderDataTable({
@@ -462,6 +497,21 @@ server <- function(input, output, session) {
                  input$p_co, 
                  input$lfc_co,
                  input$lfc_plot_lim)
+    }, 
+    height = viz_plot_height, 
+    width = viz_plot_width)
+    
+    
+    
+    output$res_volcano <- renderPlot({
+        validate(
+            need(try(res()), "No DGE results. Plot not available.")
+        )
+        deseq_volcano(res(), 
+                      input$p_co, 
+                      input$lfc_co,
+                      input$p_plot_lim,
+                      input$lfc_plot_lim)
     }, 
     height = viz_plot_height, 
     width = viz_plot_width)
@@ -510,45 +560,8 @@ server <- function(input, output, session) {
             return(input$rna_plot_width)
         })
         
-        output$deseq_hm <- renderPlot({
-            validate(
-                need(input$pca_var, "Please Upload Data")
-            )
-            deseq_heatmap(rna_input()[[1]], 
-                          input$pca_var,
-                          input$palette_con,
-                          input$palette_dir)
-        }, 
-        height = rna_plot_height, 
-        width = rna_plot_width)
         
-        output$deseq_pca <- renderPlot({
-            validate(
-                need(input$pca_var, "Please Upload Data")
-            )
-            if (is.numeric(rna_input()[[1]]@colData[[input$pca_var]])) {
-                deseq_pca(rna_input()[[1]], 
-                          input$pca_var, 
-                          input$palette_con,
-                          ifelse(input$palette_dir, 1, -1))
-            } else {
-                deseq_pca(rna_input()[[1]], 
-                          input$pca_var, 
-                          input$palette_cat)
-            }
-        }, 
-        height = rna_plot_height, 
-        width = rna_plot_width)
         
-        output$deseq_volcano <- renderPlot({
-            deseq_volcano(rna_input()[[2]], 
-                          input$p_co, 
-                          input$lfc_co,
-                          input$p_plot_lim,
-                          input$lfc_plot_lim)
-        }, 
-        height = rna_plot_height, 
-        width = rna_plot_width)
         
         rna_genes <- eventReactive(
             
