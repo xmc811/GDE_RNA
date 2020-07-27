@@ -94,7 +94,7 @@ get_nm_count_dds <- function(dds, genes, var) {
     
     for (i in seq_along(1:length(genes))) {
         
-        d <- plotCounts(dds, 
+        d <- DESeq2::plotCounts(dds, 
                         gene = genes[i], 
                         intgroup = var, 
                         returnData = TRUE)

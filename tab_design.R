@@ -151,10 +151,7 @@ tab_rna <- tabPanel(
             br(),
             
             conditionalPanel(
-                condition = "input.rna_panel == 1 || 
-                            input.rna_panel == 2 || 
-                            input.rna_panel == 6",
-                
+                condition = " input.rna_panel == 6",
                 uiOutput("rna_var"),
             ),
             
@@ -164,60 +161,25 @@ tab_rna <- tabPanel(
                             input.rna_panel == 5",
                 uiOutput("dge_params")
             ),
-            
             conditionalPanel(
                 condition = "input.rna_panel == 6 || 
                             input.rna_panel == 7",
-                
-                h4("Gene List"),
-                radioGroupButtons(inputId = "rna_gene_ls_src",
-                                  label = NULL,
-                                  choices = c("Use Top Genes",
-                                              "Manual Input",
-                                              "Upload File"),
-                                  justified = TRUE),
-                conditionalPanel(
-                    condition = "input.rna_gene_ls_src == 'Use Top Genes'",
-                    splitLayout(sliderInput(inputId = "rna_gene_num",
-                                            label = "Number of Genes", 
-                                            min = 1, max = 50, value = 6),
-                                actionButton(
-                                    inputId = "rna_gene_read1",
-                                    label = "Plot",
-                                    icon = icon("check"),
-                                    style = "color: white; 
-                                    background-color: #737373;
-                                    margin-top: 25px;
-                                    float:right;
-                                    margin-right: 5px;"),
-                                cellWidths = c("75%", "25%")
-                    )
-                ),
-                conditionalPanel(
-                    condition = "input.rna_gene_ls_src == 'Manual Input'",
-                    splitLayout(textInput("rna_genes_man", 
-                                          label = NULL, 
-                                          value = ""),
-                                
-                                actionButton(
-                                    inputId = "rna_gene_read2",
-                                    label = "Plot",
-                                    icon = icon("check"),
-                                    style = "color: white; background-color: #737373;
-                            float:right; margin-right: 5px;"),
-                                cellWidths = c("75%", "25%")
-                    )
-                    
-                ),
-                conditionalPanel(
-                    condition = "input.rna_gene_ls_src == 'Upload File'",
-                    fileInput(inputId = "rna_genes_file",
-                              label = NULL,
-                              buttonLabel = "Browse..")
-                ),
-                br()
+                uiOutput("viz_gene_ui")
             ),
-            
+            conditionalPanel(
+                condition = "input.rna_panel == 6 || 
+                            input.rna_panel == 7",
+                uiOutput("viz_color_ui")
+            ),
+            conditionalPanel(
+                condition = "input.rna_panel == 3 || 
+                            input.rna_panel == 4",
+                uiOutput("squash_params")
+            ),
+            conditionalPanel(
+                condition = "input.rna_panel != 5",
+                uiOutput("viz_plot_size")
+            ),
             conditionalPanel(
                 condition = "input.rna_panel == 8",
                 
@@ -233,43 +195,8 @@ tab_rna <- tabPanel(
                     condition = "input.rna_pathway_src == 'Upload File'",
                     fileInput(inputId = "rna_pathway_file",
                               label = NULL,
-                              buttonLabel = "Browse..")
-                )
+                              buttonLabel = "Browse.."))
             ),
-            
-            conditionalPanel(
-                condition = "input.rna_panel == 1 || 
-                            input.rna_panel == 2 ||
-                            input.rna_panel == 6 || 
-                            input.rna_panel == 7",
-                
-                h4("Plotting Parameters"),
-                splitLayout(selectInput(inputId = "palette_cat", 
-                                        label = "Categorical Palette",
-                                        choices = rownames(brewer.pal.info[brewer.pal.info$category == "qual",]),
-                                        selected = "Set2"),
-                            selectInput(inputId = "palette_con", 
-                                        label = "Continuous Palette",
-                                        choices = rownames(brewer.pal.info[brewer.pal.info$category != "qual",]),
-                                        selected = "Spectral")),
-                materialSwitch(
-                    inputId = "palette_dir",
-                    label = "Reverse Scale Color Direction",
-                    value = FALSE,
-                    right = TRUE
-                )
-            ),
-            conditionalPanel(
-                condition = "input.rna_panel == 3 || 
-                            input.rna_panel == 4",
-                uiOutput("squash_params")
-            ),
-            conditionalPanel(
-                condition = "input.rna_panel != 5",
-                uiOutput("viz_plot_size")
-            ),
-            
-            
             tags$head(tags$style(HTML("
                               .shiny-split-layout > div {
                                 overflow: visible;
@@ -311,7 +238,7 @@ tab_rna <- tabPanel(
                     value = 6,
                     title = "Gene Boxplot",
                     br(),
-                    plotOutput("deseq_box", width = "100%")
+                    plotOutput("res_box")
                 ),
                 tabPanel(
                     value = 7,
@@ -373,6 +300,5 @@ tab_about <- tabPanel(
             h4("Jianhua (John) Zhang")
         )
     )
-    
 )
 

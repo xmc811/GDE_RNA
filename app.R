@@ -412,7 +412,7 @@ server <- function(input, output, session) {
     )
     
     
-    # DGE Visualization UIs and Parameters
+    # DGE Visualization UIs
     
     output$viz_plot_size <- renderUI({
         validate(
@@ -427,35 +427,19 @@ server <- function(input, output, session) {
                     cellWidths = c("50%", "50%"))
     })
     
-    viz_plot_height <- reactive({
-        validate(
-            need(input$plot_height < 4000, 
-                 "Plot height shouldn't exceed 4000px.")
-        )
-        return(input$viz_plot_height)
-    })
-    
-    viz_plot_width <- reactive({
-        validate(
-            need(input$plot_width < 4000, 
-                 "Plot width shouldn't exceed 4000px.")
-        )
-        return(input$viz_plot_width)
-    })
-    
     
     output$dge_params <- renderUI({
         validate(
             need(try(res()), "")
         )
         list(
-        h4("Differential Gene Expression Parameters"),
-        splitLayout(numericInput("p_co", 
-                                 label = "Adjusted P-value Cutoff", 
-                                 value = 0.05),
-                    numericInput("lfc_co", 
-                                 label = "Log2 Fold Change Cutoff", 
-                                 value = 1))
+            h4("Differential Gene Expression Parameters"),
+            splitLayout(numericInput("p_co", 
+                                     label = "Adjusted P-value Cutoff", 
+                                     value = 0.05),
+                        numericInput("lfc_co", 
+                                     label = "Log2 Fold Change Cutoff", 
+                                     value = 1))
         )
     })
     
@@ -475,6 +459,128 @@ server <- function(input, output, session) {
         )
     })
     
+    
+    output$rna_var <- renderUI({
+        validate(
+            need(try(dds_run()), "")
+        )
+        list(
+            h4("Variable"),
+            selectInput(inputId = "box_var", 
+                        label = "Categorical Variable for Gene Boxplot",
+                        choices = colnames(dds_run()@colData))
+        )
+    })
+    
+    
+    output$viz_color_ui <- renderUI({
+        validate(
+            need(try(res()), "")
+        )
+        list(
+            splitLayout(selectInput(inputId = "viz_pal_cat", 
+                                    label = "Categorical Palette",
+                                    choices = rownames(brewer.pal.info[brewer.pal.info$category == "qual",]),
+                                    selected = "Set2"),
+                        selectInput(inputId = "viz_pal_con", 
+                                    label = "Continuous Palette",
+                                    choices = rownames(brewer.pal.info[brewer.pal.info$category != "qual",]),
+                                    selected = "Spectral")),
+            materialSwitch(
+                inputId = "viz_pal_dir",
+                label = "Reverse Scale Color Direction",
+                value = FALSE,
+                right = TRUE)
+        )
+    })
+    
+    output$viz_gene_ui <- renderUI({
+        validate(
+            need(try(res()), "")
+        )
+        list(
+            h4("Gene List"),
+            radioGroupButtons(inputId = "viz_gene_src",
+                              label = NULL,
+                              choices = c("Use Top Genes",
+                                          "Manual Input",
+                                          "Upload File"),
+                              justified = TRUE),
+            conditionalPanel(
+                condition = "input.viz_gene_src == 'Use Top Genes'",
+                splitLayout(sliderInput(inputId = "rna_gene_num",
+                                        label = "Number of Genes", 
+                                        min = 1, max = 50, value = 6),
+                            actionButton(
+                                inputId = "rna_gene_read1",
+                                label = "Plot",
+                                icon = icon("check"),
+                                style = "color: white; background-color: #737373; margin-top: 25px; float:right; margin-right: 5px;"),
+                            cellWidths = c("75%", "25%")
+                            )
+                ),
+            conditionalPanel(
+                condition = "input.viz_gene_src == 'Manual Input'",
+                splitLayout(textInput("rna_genes_man", 
+                                      label = NULL, 
+                                      value = ""),
+                            actionButton(
+                                inputId = "rna_gene_read2",
+                                label = "Plot",
+                                icon = icon("check"),
+                                style = "color: white; background-color: #737373; float:right; margin-right: 5px;"),
+                            cellWidths = c("75%", "25%")
+                            )
+                ),
+            conditionalPanel(
+                condition = "input.viz_gene_src == 'Upload File'",
+                fileInput(inputId = "rna_genes_file",
+                          label = NULL,
+                          buttonLabel = "Browse..")
+                ),
+            br()
+            )
+        })
+    
+    
+    # DGE Visualization Parameters
+    
+    viz_plot_height <- reactive({
+        validate(
+            need(input$plot_height < 4000, 
+                 "Plot height shouldn't exceed 4000px.")
+        )
+        return(input$viz_plot_height)
+    })
+    
+    viz_plot_width <- reactive({
+        validate(
+            need(input$plot_width < 4000, 
+                 "Plot width shouldn't exceed 4000px.")
+        )
+        return(input$viz_plot_width)
+    })
+    
+    
+    rna_genes <- eventReactive(
+        c(input$rna_gene_read1,
+          input$rna_gene_read2,
+          input$rna_genes_file),
+        {
+            if(input$viz_gene_src == 'Use Top Genes') {
+                get_rna_genes(res())[1:input$rna_gene_num]
+            } else if (input$viz_gene_src == 'Manual Input') {
+                validate(
+                    need(input$rna_genes_man, "Please Input Gene List")
+                )
+                parse_rna_genes(input$rna_genes_man)
+            } else {
+                validate(
+                    need(input$rna_genes_file, "Please Upload Gene List")
+                )
+                readLines(input$rna_genes_file$datapath)
+            }}
+        )
     
     # DGE Visualization Panels
     
@@ -516,6 +622,20 @@ server <- function(input, output, session) {
     height = viz_plot_height, 
     width = viz_plot_width)
     
+    
+    output$res_box <- renderPlot({
+        validate(
+            need(try(res()), "No DGE results. Plot not available.")
+        )
+        deseq_box(dds_run(), 
+                  rna_genes(),
+                  input$box_var, 
+                  input$viz_pal_cat)
+    }, 
+    height = viz_plot_height, 
+    width = viz_plot_width)
+    
+    
     # RNA
     
     observeEvent(input$rna_start, {
@@ -534,18 +654,6 @@ server <- function(input, output, session) {
                 readRDS(paste0("./large_data/",input$rna_select))})
         }
         
-        output$rna_var <- renderUI({
-            validate(
-                need(try(rna_input()), "")
-            )
-            list(
-                h4("Variable"),
-                selectInput(inputId = "pca_var", 
-                            label = "Categorical Variable for Heatmap, PCA, and Gene Boxplot",
-                            choices = colnames(rna_input()[[1]]@colData))
-            )
-        })
-        
         rna_plot_height <- reactive({
             validate(
                 need(input$rna_plot_height < 4000, "Plot height shouldn't exceed 4000px.")
@@ -563,45 +671,7 @@ server <- function(input, output, session) {
         
         
         
-        rna_genes <- eventReactive(
-            
-            c(input$rna_gene_read1,
-              input$rna_gene_read2,
-              input$rna_genes_file),
-            
-            {
-                
-                if(input$rna_gene_ls_src == 'Use Top Genes') {
-                    
-                    get_rna_genes(rna_input()[[2]])[1:input$rna_gene_num]
-                    
-                } else if (input$rna_gene_ls_src == 'Manual Input') {
-                    
-                    validate(
-                        need(input$rna_genes_man, "Please Input Gene List")
-                    )
-                    parse_rna_genes(input$rna_genes_man)
-                    
-                } else {
-                    
-                    validate(
-                        need(input$rna_genes_file, "Please Upload Gene List")
-                    )
-                    readLines(input$rna_genes_file$datapath)
-                }})
         
-        
-        output$deseq_box <- renderPlot({
-            validate(
-                need(input$pca_var, "Please Upload Data")
-            )
-            deseq_box(rna_input()[[1]], 
-                      rna_genes(),
-                      input$pca_var, 
-                      input$palette_cat)
-        }, 
-        height = rna_plot_height, 
-        width = rna_plot_width)
         
         output$deseq_cluster <- renderPlot({
             deseq_cluster(rna_input()[[1]], 
