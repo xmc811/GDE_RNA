@@ -379,11 +379,11 @@ server <- function(input, output, session) {
         validate(
             need(try(res()), "")
         )
-        paste0("Differential gene expression (DGE) analysis done\n",
+        paste0("Differential gene expression (DGE) analysis done\n\n",
                res()@elementMetadata[2,2] %>%
                    str_remove("^.*:") %>%
-                   str_trim(), "\n",
-               "You can visualize your data in the 'Visualization' tab.")
+                   str_trim(), "\n\n",
+               "You can visualize your data in the 'DGE Visualization' tab.")
     })
     
     # Sample Distances

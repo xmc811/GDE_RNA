@@ -53,6 +53,10 @@ tab_file <- tabPanel(
                 h3("Sample Distance Heatmap")
             ),
             conditionalPanel(
+                condition = "input.count_panel == 4 ",
+                h3("DGE Analysis")
+            ),
+            conditionalPanel(
                 condition = "input.count_panel == 2 ||
                 input.count_panel == 3",
                 uiOutput("pca_var_ui")
@@ -142,7 +146,7 @@ tab_file <- tabPanel(
 
 tab_rna <- tabPanel(
     
-    title = "RNA-seq",
+    title = "DGE Visualization",
     fluid = TRUE,
     value = "v_rna",
     
