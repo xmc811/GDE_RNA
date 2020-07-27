@@ -77,13 +77,7 @@ tab_file <- tabPanel(
             conditionalPanel(
                 condition = "input.count_panel == 2 ||
                 input.count_panel == 3",
-                splitLayout(numericInput("plot_height", 
-                                         "Plot Height (px)", 
-                                         value = 600),
-                            numericInput("plot_width", 
-                                         "Plot Width (px)", 
-                                         value = 800),
-                            cellWidths = c("50%", "50%"))
+                uiOutput("plot_size")
             ),
             conditionalPanel(
                 condition = "input.count_panel == 4",
@@ -153,22 +147,8 @@ tab_rna <- tabPanel(
     sidebarLayout(
         
         sidebarPanel = sidebarPanel(
-            h3("RNA-seq Data Analysis"),
+            h3("RNA DGE Visualization"),
             br(),
-            
-            h4("Data Source"),
-            splitLayout(radioGroupButtons(inputId = "data_source",
-                                          label = NULL,
-                                          choices = c("Example","Upload","Select"),
-                                          justified = TRUE),
-                        actionButton(
-                            inputId = "rna_start",
-                            label = "Launch",
-                            icon = icon("bar-chart"),
-                            style = "color: white; background-color: #0570b0;
-                            float:right; margin-right: 5px;"),
-                        
-                        cellWidths = c("67%", "33%")),
             
             conditionalPanel(
                 condition = "input.data_source == 'Upload'",
@@ -349,16 +329,10 @@ tab_rna <- tabPanel(
             tabsetPanel(
                 id = "rna_panel",
                 tabPanel(
-                    value = 1,
-                    title = "Heatmap",
+                    value = 5,
+                    title = "Table",
                     br(),
-                    plotOutput("deseq_hm")
-                ),
-                tabPanel(
-                    value = 2,
-                    title = "PCA",
-                    br(),
-                    plotOutput("deseq_pca", width = "100%") 
+                    DT::dataTableOutput("res_table")
                 ),
                 tabPanel(
                     value = 3,
@@ -371,12 +345,6 @@ tab_rna <- tabPanel(
                     title = "Volcano Plot",
                     br(),
                     plotOutput("deseq_volcano")
-                ),
-                tabPanel(
-                    value = 5,
-                    title = "Table",
-                    br(),
-                    DT::dataTableOutput("deseq_table")
                 ),
                 tabPanel(
                     value = 6,

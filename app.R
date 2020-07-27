@@ -277,6 +277,16 @@ server <- function(input, output, session) {
     
     # Plot Size
     
+    output$plot_size <- renderUI({
+            splitLayout(numericInput("plot_height", 
+                                 "Plot Height (px)", 
+                                 value = 600),
+                    numericInput("plot_width", 
+                                 "Plot Width (px)", 
+                                 value = 800),
+                    cellWidths = c("50%", "50%"))
+    })
+    
     plot_height <- reactive({
         validate(
             need(input$plot_height < 4000, 
@@ -401,12 +411,21 @@ server <- function(input, output, session) {
     width = plot_width
     )
     
+    # DGE Visualization
+    
+    output$res_table <- DT::renderDataTable({
+        validate(
+            need(try(res()), "No DGE results. Table not available.")
+        )
+        deseq_table(res(), 
+                    input$p_co, 
+                    input$lfc_co)
+    })
+    
     
     # RNA
     
     observeEvent(input$rna_start, {
-        
-        library(DESeq2)
         
         rna_input <- if(input$data_source == "Example") {
             reactive({readRDS("./large_data/rnaseq.rds")})
@@ -496,12 +515,6 @@ server <- function(input, output, session) {
         }, 
         height = rna_plot_height, 
         width = rna_plot_width)
-        
-        output$deseq_table <- DT::renderDataTable({
-            deseq_table(rna_input()[[2]], 
-                        input$p_co, 
-                        input$lfc_co)
-        })
         
         rna_genes <- eventReactive(
             
