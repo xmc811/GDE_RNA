@@ -1,6 +1,7 @@
 
 source("loading.R")
 source("helpers.R")
+source("ui_design.R")
 source("tab_design.R")
 source("visualization.R")
 
@@ -34,18 +35,7 @@ server <- function(input, output, session) {
             h3("RNA-seq Raw Data Input"),
             br(),
             h4("Data Source"),
-            splitLayout(radioGroupButtons(inputId = "count_source",
-                                          label = NULL,
-                                          choices = c("Example","Upload","Select"),
-                                          justified = TRUE),
-                        actionButton(
-                            inputId = "count_start",
-                            label = "Upload",
-                            icon = icon("bar-chart"),
-                            style = "color: white; background-color: #0570b0;
-                            float:right; margin-right: 5px;"),
-                        
-                        cellWidths = c("67%", "33%"))
+            test_panel
         )
     })
     
