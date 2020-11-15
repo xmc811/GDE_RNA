@@ -18,8 +18,8 @@ tab_file <- tabPanel(
                 condition = "input.count_source == 'Upload' &&
                              input.count_panel == 1",
                 shinyFilesButton('count_upload', 
-                                 label='Select RNA Count Files', 
-                                 title='Please select HTSeq RNA count files', 
+                                 label = 'Select RNA Count Files', 
+                                 title = 'Please select HTSeq RNA count files', 
                                  multiple = TRUE),
                 br(),
                 fileInput(inputId = "meta_input",

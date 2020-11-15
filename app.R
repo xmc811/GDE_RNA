@@ -16,6 +16,7 @@ ui <- navbarPage(
     title = "Genomic Data Explorer",
     id = "tabs",
     
+    # tab_design.R
     tab_file,
     tab_rna,
     tab_help,
@@ -30,46 +31,36 @@ ui <- navbarPage(
 server <- function(input, output, session) {
     
     output$upload_panel <- renderUI({
-        
         list(
             h3("RNA-seq Raw Data Input"),
             br(),
             h4("Data Source"),
-            test_panel
+            upload_widgets  # ui_design.R
         )
     })
     
+    # Multiple file upload 
     shinyFileChoose(input, 
                     id = 'count_upload', 
                     roots = c(home = "~/"),
                     filetypes = "tsv")
     
     mt_raw <- eventReactive(input$count_start, {
-        
         if (input$count_source == "Example") {
-            
             read_csv("./data/metadata.csv")
-            
         } else if (input$count_source == "Upload") {
-            
             read_csv(input$meta_input$datapath)
-            
         } else {}
     })
     
     cts_raw <- eventReactive(input$count_start,{
-        
         if (input$count_source == "Example") {
-            
             readRDS("./data/example_mtx.rds")
-            
         } else if (input$count_source == "Upload"){
-            
             roots <- c(home = "~/")
             files_path <- parseFilePaths(roots, 
                                          input$count_upload)$datapath
             htseq_to_mtx(files_path)
-            
         } else {}
     })
     
@@ -130,23 +121,22 @@ server <- function(input, output, session) {
             actionButton(
                 inputId = "cts_start",
                 label = "Pre-Process",
-                icon = icon("bar-chart"),
+                icon = icon("files-o"),
                 style = "color: white; background-color: #2ca25f")
         )
     })
     
-    cts <- eventReactive(input$cts_start, {
-        mtx_name_match(cts_raw(), 
-                       mt_raw(), 
-                       input$meta_sample_col,
-                       input$meta_file_col,
-                       input$count_co)
+    cts <- eventReactive(input$cts_start, 
+                         {mtx_name_match(cts_raw(), 
+                                         mt_raw(), 
+                                         input$meta_sample_col,
+                                         input$meta_file_col,
+                                         input$count_co)
     })
     
     mt <- reactiveVal()
     
     observeEvent(input$cts_start,{
-        
         mt(filter_mt(cts(), mt_raw()))
     })
     
@@ -167,7 +157,7 @@ server <- function(input, output, session) {
         actionButton(
             inputId = "cts_compute",
             label = "Compute",
-            icon = icon("bar-chart"),
+            icon = icon("calculator"),
             style = "color: white; background-color: #0570b0;")
         
     })
@@ -176,10 +166,8 @@ server <- function(input, output, session) {
     vsd <- reactiveVal()
     
     observeEvent(input$cts_compute, {
-        
         dds(cts_to_dds(cts(), mt()))
         vsd(DESeq2::vst(dds(), blind = FALSE))
-
     })
 
     
