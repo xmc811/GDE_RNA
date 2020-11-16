@@ -50,12 +50,12 @@ tab_file <- tabPanel(
             ),
             conditionalPanel(
                 condition = "input.count_panel == 2 ||
-                input.count_panel == 3",
+                             input.count_panel == 3",
                 uiOutput("pca_var_ui")
             ),
             conditionalPanel(
                 condition = "input.count_panel == 2 ||
-                input.count_panel == 3",
+                             input.count_panel == 3",
                 uiOutput("color_ui")
             ),
             conditionalPanel(
@@ -68,7 +68,7 @@ tab_file <- tabPanel(
             ),
             conditionalPanel(
                 condition = "input.count_panel == 2 ||
-                input.count_panel == 3",
+                             input.count_panel == 3",
                 uiOutput("plot_size")
             ),
             conditionalPanel(

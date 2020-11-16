@@ -22,6 +22,9 @@ number01 <- function(id, text = NULL, value = NULL){
     numericInput(inputId = id, label = text, value = value)
 }
 
+
+
+
 number_cts_cutoff <- function(){
     numericInput(inputId = "cts_cutoff", label = NULL, value = 10)
 }
@@ -58,6 +61,13 @@ file_meta_upload <- function() {
     fileInput(inputId = "meta_file",
               label = " ",
               buttonLabel = "Upload Metadata..")
+}
+
+button_cts_compute <- function() {
+    actionButton(inputId = "cts_compute_click", 
+                 label = "Compute", 
+                 icon = icon("calculator"), 
+                 style = "color: white; background-color: #0570b0;")
 }
 
 

@@ -145,10 +145,7 @@ server <- function(input, output, session) {
     output$compute_button <- renderUI({
         validate(need(try(cts()),""),
                  need(try(mt()),""))
-        button01(id = "cts_compute",
-                 text = "Compute",
-                 icon = "calculator",
-                 style = "color: white; background-color: #0570b0;")
+        button_cts_compute()
     })
     
     
@@ -156,7 +153,7 @@ server <- function(input, output, session) {
     dds <- reactiveVal()
     vsd <- reactiveVal()
     
-    observeEvent(input$cts_compute, {
+    observeEvent(input$cts_compute_click, {
         dds(cts_to_dds(cts(), mt()))
         vsd(DESeq2::vst(dds(), blind = FALSE))
     })
