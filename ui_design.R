@@ -95,9 +95,9 @@ number_cts_cutoff <- function(){
     numericInput(inputId = "cts_cutoff", label = NULL, value = 10)
 }
 
-number_plot_size <- function(type) {
+number_plot_size <- function(tab, type) {
     value <- ifelse(type == "height", 600, 800)
-    numericInput(inputId = paste0("plot_", type), 
+    numericInput(inputId = paste0(tab, "plot_", type), 
                  label = paste("Plot", str_to_title(type), "(px)"), 
                  value = value)
 }
@@ -124,9 +124,13 @@ cluster_widgets <- splitLayout(number_n_cluster(),
                                button_assign_cluster(),
                                cellWidths = c("33%", "67%"))
 
-plot_size_widgets <- splitLayout(number_plot_size("height"),
-                                 number_plot_size("width"),
+plot_size_widgets <- splitLayout(number_plot_size("", "height"),
+                                 number_plot_size("", "width"),
                                  cellWidths = c("50%", "50%"))
+
+viz_plot_size_widgets <- splitLayout(number_plot_size("viz_", "height"),
+                                     number_plot_size("viz_", "width"),
+                                     cellWidths = c("50%", "50%"))
 
 
 

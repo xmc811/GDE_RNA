@@ -142,7 +142,7 @@ tab_rna <- tabPanel(
             h3("RNA DGE Visualization"),
             br(),
             conditionalPanel(
-                condition = " input.rna_panel == 6",
+                condition = "input.rna_panel == 6",
                 uiOutput("rna_var"),
             ),
             conditionalPanel(

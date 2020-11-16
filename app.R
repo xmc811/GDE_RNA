@@ -295,16 +295,8 @@ server <- function(input, output, session) {
     # DGE Visualization UI
     
     output$viz_plot_size <- renderUI({
-        validate(
-            need(try(res()), "")
-        )
-        splitLayout(numericInput("viz_plot_height", 
-                                 "Plot Height (px)", 
-                                 value = 600),
-                    numericInput("viz_plot_width", 
-                                 "Plot Width (px)", 
-                                 value = 800),
-                    cellWidths = c("50%", "50%"))
+        validate(need(try(res()), ""))
+        viz_plot_size_widgets
     })
     
     
@@ -441,20 +433,13 @@ server <- function(input, output, session) {
     
     
     # DGE Visualization Parameters
-    
     viz_plot_height <- reactive({
-        validate(
-            need(input$plot_height < 4000, 
-                 "Plot height shouldn't exceed 4000px.")
-        )
+        validate(need(input$viz_plot_height < 4000, "Plot height shouldn't exceed 4000px."))
         return(input$viz_plot_height)
     })
     
     viz_plot_width <- reactive({
-        validate(
-            need(input$plot_width < 4000, 
-                 "Plot width shouldn't exceed 4000px.")
-        )
+        validate(need(input$viz_plot_width < 4000, "Plot width shouldn't exceed 4000px."))
         return(input$viz_plot_width)
     })
     
