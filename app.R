@@ -193,21 +193,8 @@ server <- function(input, output, session) {
     })
     
     output$color_ui <- renderUI({
-        list(
-            splitLayout(selectInput(inputId = "pal_cat", 
-                                    label = "Categorical Palette",
-                                    choices = rownames(brewer.pal.info[brewer.pal.info$category == "qual",]),
-                                    selected = "Set2"),
-                        selectInput(inputId = "pal_con", 
-                                    label = "Continuous Palette",
-                                    choices = rownames(brewer.pal.info[brewer.pal.info$category != "qual",]),
-                                    selected = "Spectral")),
-            materialSwitch(
-                inputId = "pal_dir",
-                label = "Reverse Scale Color Direction",
-                value = FALSE,
-                right = TRUE)
-        )
+        list(palette_widgets,
+             direction_widgets)
     })
     
     output$cluster_switch <- renderUI({
