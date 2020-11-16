@@ -131,12 +131,12 @@ server <- function(input, output, session) {
     
     
     # Pre Processing of Raw Data - Generation of Counts and Metadata
-    cts <- eventReactive(input$cts_start, 
-                         {mtx_name_match(cts_raw(), 
-                                         mt_raw(), 
-                                         input$meta_sample_col,
-                                         input$meta_file_col,
-                                         input$count_co)
+    cts <- eventReactive(input$cts_start, {
+        mtx_name_match(cts_raw(), 
+                       mt_raw(), 
+                       input$meta_sample_col,
+                       input$meta_file_col,
+                       input$count_co)
     })
 
     mt <- reactiveVal()
@@ -192,11 +192,9 @@ server <- function(input, output, session) {
         validate(
             need(!is.null(vsd()), "")
         )
-        list(
-            select01(id = "pca_var_ch", 
-                     text = "Variable for PCA Plot and Heatmap",
-                     choices = colnames(vsd()@colData))
-        )
+        select01(id = "pca_var_ch", 
+                 text = "Variable for PCA Plot and Heatmap",
+                 choices = colnames(vsd()@colData))
     })
     
     output$color_ui <- renderUI({
@@ -209,9 +207,7 @@ server <- function(input, output, session) {
     })
     
     output$cluster_ui <- renderUI({
-        validate(
-            need(input$cluster_sw == TRUE, "")
-        )
+        validate(need(input$cluster_sw == TRUE, ""))
         cluster_widgets
     })
     
@@ -221,18 +217,12 @@ server <- function(input, output, session) {
     })
     
     plot_height <- reactive({
-        validate(
-            need(input$plot_height < 4000, 
-                 "Plot height shouldn't exceed 4000px.")
-        )
+        validate(need(input$plot_height < 4000, "Plot height shouldn't exceed 4000px."))
         return(input$plot_height)
     })
     
     plot_width <- reactive({
-        validate(
-            need(input$plot_width < 4000, 
-                 "Plot width shouldn't exceed 4000px.")
-        )
+        validate(need(input$plot_width < 4000, "Plot width shouldn't exceed 4000px."))
         return(input$plot_width)
     })
     
@@ -249,9 +239,7 @@ server <- function(input, output, session) {
     
     # PCA - Plotting
     output$pca <- renderPlot({
-        validate(
-            need(vsd(), "VSD object not computed. PCA not available.")
-        )
+        validate(need(vsd(), "VSD object not computed. PCA not available."))
         if (input$cluster_sw == TRUE) {
             plot_pca_vsd_km(vsd = vsd(), 
                             km_res = km_res(), 
@@ -271,9 +259,7 @@ server <- function(input, output, session) {
     # Sample Distance - Plotting
     
     output$hm <- renderPlot({
-        validate(
-            need(vsd(), "VSD object not computed. Heatmap not available.")
-        )
+        validate(need(vsd(), "VSD object not computed. Heatmap not available."))
         plot_heatmap_vsd(vsd = vsd(), 
                          var = input$pca_var_ch, 
                          pal = input$pal_con, 
