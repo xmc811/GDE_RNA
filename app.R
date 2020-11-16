@@ -89,7 +89,6 @@ server <- function(input, output, session) {
 
     
     # Pre Processing of Raw Data - UI
-    
     select_meta <- function(id, text, choices = colnames(mt_raw())) {
         selectInput(inputId = id, 
                     label = text, 
@@ -169,18 +168,19 @@ server <- function(input, output, session) {
     # PCA Sample Distance - UI
     output$pca_var_ui <- renderUI({
         validate(need(!is.null(vsd()), ""))
-        select01(id = "pca_var_ch", 
-                 text = "Variable for PCA Plot and Heatmap",
-                 choices = colnames(vsd()@colData))
+        selectInput(inputId = "pca_var", 
+                    label = "Variable for PCA Plot and Heatmap",
+                    choices = colnames(vsd()@colData),
+                    selected = colnames(vsd()@colData)[1])
     })
     
     output$color_ui <- renderUI({
         list(palette_widgets,
-             switch01("pal_dir", "Reverse Scale Color Direction"))
+             switch_palette_dir())
     })
     
     output$cluster_switch <- renderUI({
-        switch01("cluster_sw", "K-means Clustering Mode")
+        switch_cluster_mode()
     })
     
     output$cluster_ui <- renderUI({
@@ -208,7 +208,7 @@ server <- function(input, output, session) {
         vsd_km(vsd(), input$n_cluster)
     })
     
-    observeEvent(input$assign_clu, {
+    observeEvent(input$assign_cluster_click, {
         dds(assign_km_clu(dds(), km_res()))
         vsd(assign_km_clu(vsd(), km_res()))
         mt(assign_km_clu_col(mt(), km_res()))
@@ -220,31 +220,29 @@ server <- function(input, output, session) {
         if (input$cluster_sw == TRUE) {
             plot_pca_vsd_km(vsd = vsd(), 
                             km_res = km_res(), 
-                            pal = input$pal_cat)
-        } else if (is.numeric(dds()@colData[[input$pca_var_ch]])) {
+                            pal = input$pal_categorical)
+        } else if (is.numeric(dds()@colData[[input$pca_var]])) {
             plot_pca_vsd(vsd = vsd(), 
-                         var = input$pca_var_ch, 
-                         pal = input$pal_con,
+                         var = input$pca_var, 
+                         pal = input$pal_continuous,
                          dir = ifelse(input$pal_dir, 1, -1))
         } else {
             plot_pca_vsd(vsd =vsd(), 
-                         var = input$pca_var_ch, 
-                         pal =input$pal_cat)
+                         var = input$pca_var, 
+                         pal =input$pal_categorical)
         }
     }, height = plot_height, width = plot_width)
     
     # Sample Distance - Plotting
-    
     output$hm <- renderPlot({
         validate(need(vsd(), "VSD object not computed. Heatmap not available."))
         plot_heatmap_vsd(vsd = vsd(), 
-                         var = input$pca_var_ch, 
-                         pal = input$pal_con, 
+                         var = input$pca_var, 
+                         pal = input$pal_continuous, 
                          dir = input$pal_dir)
     }, height = plot_height, width = plot_width)
     
     # DGE
-    
     output$dge_var <- renderUI({
         validate(
             need(try(mt()),"")
