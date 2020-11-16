@@ -93,13 +93,14 @@ server <- function(input, output, session) {
         } else {}
         get_count_message(cts_raw())
     })
+
+    
     
     output$cts_proc <- renderUI({
         validate(
             need(input$count_source,"")
         )
         if (input$count_source == "Example") {
-            
         } else if (input$count_source == "Upload") {
             validate(
                 need(input$meta_input, "Please Upload Metadata"),
@@ -108,23 +109,22 @@ server <- function(input, output, session) {
         } else {}
         list(
             h4("File-Sample Name Matching"),
-            selectInput(inputId = "meta_sample_col", 
-                        label = "Sample Column",
-                        choices = colnames(mt_raw())),
-            selectInput(inputId = "meta_file_col", 
-                        label = "File Name Column",
-                        choices = colnames(mt_raw())),
+            select01(id = "meta_sample_col", 
+                     text = "Sample Column",
+                     choices = colnames(mt_raw())),
+            select01(id = "meta_file_col", 
+                     text = "File Name Column",
+                     choices = colnames(mt_raw())),
             h4("Count cutoff (count data row sums < n)"),
-            numericInput(inputId = "count_co",
-                         label = NULL,
-                         value = 10),
-            actionButton(
-                inputId = "cts_start",
-                label = "Pre-Process",
-                icon = icon("files-o"),
-                style = "color: white; background-color: #2ca25f")
+            number01(id = "count_co", value = 10),
+            button01(id = "cts_start",
+                     text = "Pre-Process",
+                     icon = "files-o",
+                     style = "color: white; background-color: #2ca25f")
         )
     })
+    
+    
     
     cts <- eventReactive(input$cts_start, 
                          {mtx_name_match(cts_raw(), 
@@ -154,12 +154,10 @@ server <- function(input, output, session) {
             need(try(cts()),""),
             need(try(mt()),"")
         )
-        actionButton(
-            inputId = "cts_compute",
-            label = "Compute",
-            icon = icon("calculator"),
-            style = "color: white; background-color: #0570b0;")
-        
+        button01(id = "cts_compute",
+                 text = "Compute",
+                 icon = "calculator",
+                 style = "color: white; background-color: #0570b0;")
     })
     
     dds <- reactiveVal()
@@ -186,70 +184,43 @@ server <- function(input, output, session) {
             need(!is.null(vsd()), "")
         )
         list(
-            selectInput(inputId = "pca_var_ch", 
-                        label = "Variable for PCA Plot and Heatmap",
-                        choices = colnames(vsd()@colData))
+            select01(id = "pca_var_ch", 
+                     text = "Variable for PCA Plot and Heatmap",
+                     choices = colnames(vsd()@colData))
         )
     })
     
     output$color_ui <- renderUI({
         list(palette_widgets,
-             direction_widgets)
+             switch01("pal_dir", "Reverse Scale Color Direction"))
     })
     
     output$cluster_switch <- renderUI({
-            materialSwitch(
-                inputId = "cluster_sw",
-                label = "K-means Clustering Mode",
-                value = FALSE,
-                right = TRUE)
+        switch01("cluster_sw", "K-means Clustering Mode")
     })
     
     output$cluster_ui <- renderUI({
         validate(
             need(input$cluster_sw == TRUE, "")
         )
-        list(
-            splitLayout(numericInput(inputId = "n_cluster",
-                                     label = "No. of K-means Clusters",
-                                     value = 3),
-                        actionButton(
-                            inputId = "assign_clu",
-                            label = "Assign K-means Cluster",
-                            icon = icon("bar-chart"),
-                            style = "color: white; background-color: #2ca25f;margin-top: 25px;
-                                    float:right;
-                                    margin-right: 5px;"),
-                        cellWidths = c("33%", "67%")
-                        )
-        )
+        cluster_widgets
     })
     
     
     km_res <- reactive({
-        
         vsd_km(vsd(), input$n_cluster)
-        
     })
     
     observeEvent(input$assign_clu, {
-        
         dds(assign_km_clu(dds(), km_res()))
         vsd(assign_km_clu(vsd(), km_res()))
         mt(assign_km_clu_col(mt(), km_res()))
-        
     })
     
     # Plot Size
     
     output$plot_size <- renderUI({
-            splitLayout(numericInput("plot_height", 
-                                 "Plot Height (px)", 
-                                 value = 600),
-                    numericInput("plot_width", 
-                                 "Plot Width (px)", 
-                                 value = 800),
-                    cellWidths = c("50%", "50%"))
+            plot_size_widgets
     })
     
     plot_height <- reactive({
@@ -274,20 +245,33 @@ server <- function(input, output, session) {
             need(vsd(), "VSD object not computed. PCA not available.")
         )
         if (input$cluster_sw == TRUE) {
-            plot_pca_vsd_km(vsd(), km_res(), input$pal_cat)
+            plot_pca_vsd_km(vsd = vsd(), 
+                            km_res = km_res(), 
+                            pal = input$pal_cat)
         } else if (is.numeric(dds()@colData[[input$pca_var_ch]])) {
-            plot_pca_vsd(vsd(), 
-                         input$pca_var_ch, 
-                         input$pal_con,
-                         ifelse(input$pal_dir, 1, -1))
+            plot_pca_vsd(vsd = vsd(), 
+                         var = input$pca_var_ch, 
+                         pal = input$pal_con,
+                         dir = ifelse(input$pal_dir, 1, -1))
         } else {
-            plot_pca_vsd(vsd(), 
-                         input$pca_var_ch, 
-                         input$pal_cat)
+            plot_pca_vsd(vsd =vsd(), 
+                         var = input$pca_var_ch, 
+                         pal =input$pal_cat)
         }
-    },
-    height = plot_height,
-    width = plot_width
+    }, height = plot_height, width = plot_width
+    )
+    
+    # Sample Distances
+    
+    output$hm <- renderPlot({
+        validate(
+            need(vsd(), "VSD object not computed. Heatmap not available.")
+        )
+        plot_heatmap_vsd(vsd = vsd(), 
+                         var = input$pca_var_ch, 
+                         pal = input$pal_con, 
+                         dir = input$pal_dir)
+    }, height = plot_height, width = plot_width
     )
     
     # DGE
@@ -357,20 +341,7 @@ server <- function(input, output, session) {
                "You can visualize your data in the 'DGE Visualization' tab.")
     })
     
-    # Sample Distances
     
-    output$hm <- renderPlot({
-        validate(
-            need(vsd(), "VSD object not computed. Heatmap not available.")
-        )
-        vsd_hm(vsd(), 
-               input$pca_var_ch, 
-               input$pal_con, 
-               input$pal_dir)
-    },
-    height = plot_height,
-    width = plot_width
-    )
     
     
     # DGE Visualization UIs

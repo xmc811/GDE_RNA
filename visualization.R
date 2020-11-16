@@ -1,100 +1,4 @@
 
-deseq_heatmap <- function(dds, var, palette, dir) {
-    
-    withProgress(message = "Plotting...", value = 0, {
-        
-        vsd <- vst(dds, blind = FALSE)
-        
-        incProgress(0.2)
-        
-        sampleDists <- dist(t(assay(vsd)))
-        
-        incProgress(0.1)
-        
-        sampleDistMatrix <- as.matrix(sampleDists)
-        rownames(sampleDistMatrix) <- vsd[[var]]
-        colnames(sampleDistMatrix) <- vsd[[var]]
-        
-        num <- num_colors(palette)
-        
-        colors <- brewer.pal(num,palette)
-        
-        if (dir) {
-            colors <- rev(colors)
-        }
-        
-        col_fun <- colorRamp2(seq(from = 0, 
-                                  to = max(sampleDistMatrix), 
-                                  length.out = num), colors)
-        
-        incProgress(0.4)
-        
-        Heatmap(sampleDistMatrix, 
-                col = col_fun,
-                rect_gp = gpar(col = "white", lwd = 2))
-        
-    })
-}
-
-
-vsd_hm <- function(vsd, var, palette, dir) {
-    
-    withProgress(message = "Plotting...", value = 0, {
-    
-        sampleDists <- dist(t(SummarizedExperiment::assay(vsd)))
-        
-        sampleDistMatrix <- as.matrix(sampleDists)
-        rownames(sampleDistMatrix) <- vsd[[var]]
-        colnames(sampleDistMatrix) <- vsd[[var]]
-        
-        sampleDistMatrix <- log2(sampleDistMatrix + 1)
-        
-        num <- num_colors(palette)
-        
-        colors <- brewer.pal(num,palette)
-        
-        if (dir) {
-            colors <- rev(colors)
-        }
-        
-        col_fun <- colorRamp2(seq(from = quantile(sampleDistMatrix, 
-                                                  1/nrow(sampleDistMatrix)), 
-                                  to = max(sampleDistMatrix), 
-                                  length.out = num), colors)
-        
-       
-        Heatmap(sampleDistMatrix, 
-                col = col_fun,
-                rect_gp = gpar(col = "white", lwd = 2),
-                heatmap_width = unit(1, "npc"), 
-                heatmap_height = unit(1, "npc"))
-    })
-}
-
-
-deseq_pca <- function(dds, var, palette, dir) {
-    
-    withProgress(message = "Plotting...", value = 0, {
-    
-    vsd <- vst(dds, blind = FALSE)
-    
-    if (is.numeric(dds@colData[[var]])) {
-        
-        plotPCA(vst(dds, blind = FALSE), intgroup = var) +
-            scale_color_distiller(palette = palette, direction = dir) +
-            labs(color = var) +
-            theme_bw() +
-            theme(aspect.ratio = 1)
-        
-    } else {
-        
-        plotPCA(vst(dds, blind = FALSE), intgroup = var) +
-            scale_color_brewer(palette = palette) +
-            labs(color = var) +
-            theme_bw() +
-            theme(aspect.ratio = 1)
-    }})
-}
 
 vsd_km <- function(vsd, k) {
     
@@ -108,12 +12,9 @@ vsd_km <- function(vsd, k) {
     return(km_res)
 }
 
-plot_pca_vsd_km <- function(vsd, km_res, palette) {
-    
+plot_pca_vsd_km <- function(vsd, km_res, pal) {
     vsd@colData$Kmeans <- LETTERS[km_res$cluster]
-    plot_pca_vsd(vsd, 
-                 "Kmeans", 
-                 palette)
+    plot_pca_vsd(vsd, "Kmeans", pal)
 }
 
 deseq_ma <- function(res, p_co, lfc_co, lfc_plot_lim = 5) {
