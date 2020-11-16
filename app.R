@@ -176,7 +176,7 @@ server <- function(input, output, session) {
     
     output$color_ui <- renderUI({
         list(palette_widgets,
-             switch_palette_dir())
+             switch_palette_dir(""))
     })
     
     output$cluster_switch <- renderUI({
@@ -293,76 +293,40 @@ server <- function(input, output, session) {
     
     
     # DGE Visualization UI
-    
     output$viz_plot_size <- renderUI({
         validate(need(try(res()), ""))
         viz_plot_size_widgets
     })
     
-    
     output$dge_params <- renderUI({
-        validate(
-            need(try(res()), "")
-        )
+        validate(need(try(res()), ""))
         list(
             h4("Differential Gene Expression Parameters"),
-            splitLayout(numericInput("p_co", 
-                                     label = "Adjusted P-value Cutoff", 
-                                     value = 0.05),
-                        numericInput("lfc_co", 
-                                     label = "Log2 Fold Change Cutoff", 
-                                     value = 1))
-        )
+            dge_cutoff_widgets
+            )
     })
-    
     
     output$squash_params <- renderUI({
-        validate(
-            need(try(res()), "")
-        )
+        validate(need(try(res()), ""))
         list(
             h4("Plotting Parameters"),
-            splitLayout(numericInput("p_plot_lim", 
-                                     label = "Adjusted P-value Squash", 
-                                     value = 5),
-                        numericInput("lfc_plot_lim", 
-                                     label = "Log2 Fold Change Squash", 
-                                     value = 5))
-        )
+            dge_plot_limit_widgets
+            )
     })
-    
     
     output$rna_var <- renderUI({
-        validate(
-            need(try(dds_run()), "")
-        )
-        list(
-            h4("Variable"),
-            selectInput(inputId = "box_var", 
-                        label = "Categorical Variable for Gene Boxplot",
-                        choices = colnames(dds_run()@colData))
-        )
+        validate(need(try(dds_run()), ""))
+        list(h4("Variable"),
+             selectInput(inputId = "box_var", 
+                         label = "Categorical Variable for Gene Boxplot",
+                         choices = colnames(dds_run()@colData))
+            )
     })
     
-    
     output$viz_color_ui <- renderUI({
-        validate(
-            need(try(res()), "")
-        )
-        list(
-            splitLayout(selectInput(inputId = "viz_pal_cat", 
-                                    label = "Categorical Palette",
-                                    choices = rownames(brewer.pal.info[brewer.pal.info$category == "qual",]),
-                                    selected = "Set2"),
-                        selectInput(inputId = "viz_pal_con", 
-                                    label = "Continuous Palette",
-                                    choices = rownames(brewer.pal.info[brewer.pal.info$category != "qual",]),
-                                    selected = "Spectral")),
-            materialSwitch(
-                inputId = "viz_pal_dir",
-                label = "Reverse Scale Color Direction",
-                value = FALSE,
-                right = TRUE)
+        validate(need(try(res()), ""))
+        list(viz_palette_widgets,
+             switch_palette_dir("viz_")
         )
     })
     
@@ -480,70 +444,47 @@ server <- function(input, output, session) {
     
     
     # DGE Visualization Panels
-    
     output$res_table <- DT::renderDataTable({
-        validate(
-            need(try(res()), "No DGE results. Table not available.")
-        )
+        validate(need(try(res()), "No DGE results. Table not available."))
         deseq_table(res(), 
                     input$p_co, 
                     input$lfc_co)
     })
     
-    
-    
     output$res_ma <- renderPlot({
-        validate(
-            need(try(res()), "No DGE results. Plot not available.")
-        )
-        deseq_ma(res(),
-                 input$p_co, 
-                 input$lfc_co,
-                 input$lfc_plot_lim)
-    }, 
-    height = viz_plot_height, 
-    width = viz_plot_width)
-    
-    
-    
-    output$res_volcano <- renderPlot({
-        validate(
-            need(try(res()), "No DGE results. Plot not available.")
-        )
-        deseq_volcano(res(), 
+        validate(need(try(res()), "No DGE results. Plot not available."))
+        plot_deseq_ma(res(),
                       input$p_co, 
                       input$lfc_co,
-                      input$p_plot_lim,
                       input$lfc_plot_lim)
-    }, 
-    height = viz_plot_height, 
-    width = viz_plot_width)
+    }, height = viz_plot_height, width = viz_plot_width)
+    
+    output$res_volcano <- renderPlot({
+        validate(need(try(res()), "No DGE results. Plot not available."))
+        plot_deseq_volcano(res(), 
+                           input$p_co, 
+                           input$lfc_co,
+                           input$p_plot_lim,
+                           input$lfc_plot_lim)
+    }, height = viz_plot_height, width = viz_plot_width)
     
     
     output$res_box <- renderPlot({
-        validate(
-            need(try(res()), "No DGE results. Plot not available.")
-        )
+        validate(need(try(res()), "No DGE results. Plot not available."))
         deseq_box(dds_run(), 
                   rna_genes(),
                   input$box_var, 
-                  input$viz_pal_cat)
-    }, 
-    height = viz_plot_height, 
-    width = viz_plot_width)
+                  input$viz_pal_categorical)
+    }, height = viz_plot_height, width = viz_plot_width)
     
     
     output$res_cluster <- renderPlot({
-        validate(
-            need(try(res()), "No DGE results. Plot not available.")
-        )
+        validate(need(try(res()), "No DGE results. Plot not available."))
         deseq_cluster(dds_run(), 
                       rna_genes(),
-                      input$viz_pal_con, 
+                      input$viz_pal_continuous, 
                       input$viz_pal_dir)
-    }, 
-    height = viz_plot_height, 
-    width = viz_plot_width)
+    }, height = viz_plot_height, width = viz_plot_width)
     
     
     output$res_gsea <- renderPlot({

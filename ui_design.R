@@ -62,8 +62,8 @@ file_meta_upload <- function() {
 
 
 # Switches
-switch_palette_dir <- function() {
-    materialSwitch(inputId = "pal_dir", 
+switch_palette_dir <- function(tab) {
+    materialSwitch(inputId = paste0(tab, "pal_dir"), 
                    label = "Reverse Scale Color Direction",
                    right = TRUE)
 }
@@ -75,7 +75,7 @@ switch_cluster_mode <- function() {
 }
 
 #Selections
-select_palette <- function(type) {
+select_palette <- function(tab, type) {
     all_pals <- rownames(brewer.pal.info)
     if (type == "categorical") {
         pals <- all_pals[brewer.pal.info$category == "qual"]
@@ -84,7 +84,7 @@ select_palette <- function(type) {
         pals <- all_pals[brewer.pal.info$category != "qual"]
         selected <- "Spectral"
     }
-    selectInput(inputId = paste0("pal_", type), 
+    selectInput(inputId = paste0(tab, "pal_", type), 
                 label = paste(str_to_title(type), "Palette"),
                 choices = pals,
                 selected = selected)
@@ -108,6 +108,30 @@ number_n_cluster <- function() {
                  value = 3)
 }
 
+number_p_cutoff <- function() {
+    numericInput("p_co", 
+                 label = "Adjusted P-value Cutoff", 
+                 value = 0.05)
+}
+
+number_lfc_cutoff <- function() {
+    numericInput("lfc_co", 
+                 label = "Log2 Fold Change Cutoff", 
+                 value = 1)
+}
+
+number_p_limit <- function() {
+    numericInput("p_plot_lim", 
+                 label = "Adjusted P-value Squash", 
+                 value = 5)
+}
+
+number_lfc_limit <- function() {
+    numericInput("lfc_plot_lim", 
+                 label = "Log2 Fold Change Squash", 
+                 value = 5)
+}
+
 
 # ----------
 # UI components
@@ -117,8 +141,11 @@ upload_widgets <- splitLayout(radio_source(),
                               button_cts_upload(),
                               cellWidths = c("67%", "33%"))
 
-palette_widgets <- splitLayout(select_palette(type = "categorical"),
-                               select_palette(type = "continuous"))
+palette_widgets <- splitLayout(select_palette("", "categorical"),
+                               select_palette("", "continuous"))
+
+viz_palette_widgets <- splitLayout(select_palette("viz_", "categorical"),
+                                   select_palette("viz_", "continuous"))
 
 cluster_widgets <- splitLayout(number_n_cluster(),
                                button_assign_cluster(),
@@ -131,6 +158,12 @@ plot_size_widgets <- splitLayout(number_plot_size("", "height"),
 viz_plot_size_widgets <- splitLayout(number_plot_size("viz_", "height"),
                                      number_plot_size("viz_", "width"),
                                      cellWidths = c("50%", "50%"))
+
+dge_cutoff_widgets <- splitLayout(number_p_cutoff(),
+                                  number_lfc_cutoff())
+
+dge_plot_limit_widgets <- splitLayout(number_p_limit(),
+                                      number_lfc_limit())
 
 
 
