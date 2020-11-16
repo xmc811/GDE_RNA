@@ -22,15 +22,49 @@ number01 <- function(id, text = NULL, value = NULL){
     numericInput(inputId = id, label = text, value = value)
 }
 
+number_cts_cutoff <- function(){
+    numericInput(inputId = "cts_cutoff", label = NULL, value = 10)
+}
+
+button_cts_process <- function() {
+    actionButton(inputId = "cts_process_click", 
+                 label = "Pre-Process", 
+                 icon = icon("files-o"), 
+                 style = "color: white; background-color: #2ca25f")
+}
+
+radio_source <- function() {
+    radioGroupButtons(inputId = "cts_source",
+                      label  = NULL,
+                      choices = c("Example","Upload","Select"),
+                      justified = TRUE)
+}
+
+button_cts_upload <- function() {
+    actionButton(inputId = "cts_upload_click", 
+                 label = "Upload", 
+                 icon = icon("upload"), 
+                 style = "color: white; background-color: #0570b0; float:right; margin-right: 5px;")
+}
+
+file_cts_upload <- function() {
+    shinyFilesButton(id = 'cts_files', 
+                     label = 'Select RNA Count Files', 
+                     title = 'Please select HTSeq RNA count files', 
+                     multiple = TRUE)
+}
+
+file_meta_upload <- function() {
+    fileInput(inputId = "meta_file",
+              label = " ",
+              buttonLabel = "Upload Metadata..")
+}
+
+
 # UI components
 
-upload_widgets <- splitLayout(radio01(id = "count_source",
-                                      text = NULL,
-                                      choices = c("Example","Upload","Select")),
-                              button01(id = "count_start",
-                                       text = "Upload",
-                                       icon = "upload",
-                                       style = "color: white; background-color: #0570b0; float:right; margin-right: 5px;"),
+upload_widgets <- splitLayout(radio_source(),
+                              button_cts_upload(),
                               cellWidths = c("67%", "33%"))
 
 

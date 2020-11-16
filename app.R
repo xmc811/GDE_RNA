@@ -45,122 +45,106 @@ server <- function(input, output, session) {
     })
     
     shinyFileChoose(input, 
-                    id = 'count_upload', 
+                    id = 'cts_files', 
                     roots = c(home = "~/"),
                     filetypes = "tsv")
     
     # Raw Data Input - Generation of Raw Counts and Metadata 
-    mt_raw <- eventReactive(input$count_start, {
-        if (input$count_source == "Example") {
+    mt_raw <- eventReactive(input$cts_upload_click, {
+        if (input$cts_source == "Example") {
             read_csv("./data/metadata.csv")
-        } else if (input$count_source == "Upload") {
-            read_csv(input$meta_input$datapath)
+        } else if (input$cts_source == "Upload") {
+            read_csv(input$meta_file$datapath)
         } else {}
     })
     
-    cts_raw <- eventReactive(input$count_start,{
-        if (input$count_source == "Example") {
+    cts_raw <- eventReactive(input$cts_upload_click, {
+        if (input$cts_source == "Example") {
             readRDS("./data/example_mtx.rds")
-        } else if (input$count_source == "Upload"){
+        } else if (input$cts_source == "Upload"){
             roots <- c(home = "~/")
-            files_path <- parseFilePaths(roots, input$count_upload)$datapath
+            files_path <- parseFilePaths(roots, input$cts_files)$datapath
             htseq_to_mtx(files_path)
         } else {}
     })
     
     # Raw Data Input - Messages
     output$mt_message <- renderText({
-        validate(
-            need(input$count_source,"")
-        )
-        if (input$count_source == "Example") {
-            
-        } else if (input$count_source == "Upload") {
-            validate(
-                need(input$meta_input, 
-                     "Please Upload Metadata")
-            )
+        validate(need(input$cts_source,""))
+        if (input$cts_source == "Example") {} 
+        else if (input$cts_source == "Upload") {
+            validate(need(input$meta_file, "Please Upload Metadata"))
         } else {}
         paste0("Metadata uploaded: ", nrow(mt_raw()), " rows")
     })
     
     output$count_message <- renderText({
-        validate(
-            need(input$count_source,"")
-        )
-        if (input$count_source == "Example") {
-            
-        } else if (input$count_source == "Upload") {
-            validate(
-                need(input$count_upload, 
-                     "Please Upload Count Data")
-            )
+        validate(need(input$cts_source,""))
+        if (input$cts_source == "Example") {} 
+        else if (input$cts_source == "Upload") {
+            validate(need(input$cts_files, "Please Upload Count Data"))
         } else {}
         get_count_message(cts_raw())
     })
 
     
     # Pre Processing of Raw Data - UI
+    
+    select_meta <- function(id, text, choices = colnames(mt_raw())) {
+        selectInput(inputId = id, 
+                    label = text, 
+                    choices = choices, 
+                    selected = choices[1])
+    }
+    
+    
     output$cts_proc <- renderUI({
-        validate(
-            need(input$count_source,"")
-        )
-        if (input$count_source == "Example") {
-        } else if (input$count_source == "Upload") {
-            validate(
-                need(input$meta_input, "Please Upload Metadata"),
-                need(input$count_upload, "Please Upload Count Data")
-            )
+        validate(need(input$cts_source,""))
+        if (input$cts_source == "Example") {
+        } else if (input$cts_source == "Upload") {
+            validate(need(input$meta_file, "Please Upload Metadata"),
+                     need(input$cts_files, "Please Upload Count Data"))
         } else {}
         list(
             h4("File-Sample Name Matching"),
-            select01(id = "meta_sample_col", 
-                     text = "Sample Column",
-                     choices = colnames(mt_raw())),
-            select01(id = "meta_file_col", 
-                     text = "File Name Column",
-                     choices = colnames(mt_raw())),
+            select_meta(id = "meta_sample_col", 
+                        text = "Sample Column"),
+            select_meta(id = "meta_file_col", 
+                        text = "File Name Column"),
             h4("Count cutoff (count data row sums < n)"),
-            number01(id = "count_co", value = 10),
-            button01(id = "cts_start",
-                     text = "Pre-Process",
-                     icon = "files-o",
-                     style = "color: white; background-color: #2ca25f")
+            number_cts_cutoff(),
+            button_cts_process()
         )
     })
     
     
     # Pre Processing of Raw Data - Generation of Counts and Metadata
-    cts <- eventReactive(input$cts_start, {
+    cts <- eventReactive(input$cts_process_click, {
         mtx_name_match(cts_raw(), 
                        mt_raw(), 
                        input$meta_sample_col,
                        input$meta_file_col,
-                       input$count_co)
+                       input$cts_cutoff)
     })
 
     mt <- reactiveVal()
     
-    observeEvent(input$cts_start,{
+    observeEvent(input$cts_process_click,{
         mt(filter_mt(cts(), mt_raw()))
     })
     
     # Pre Processing of Raw Data - Messages
     output$cts_summary <- renderPrint({
-        validate(
-            need(try(cts()), ""),
-            need(ncol(cts()) >= 1, "Name matching returns count matrix with 0 samples.\nPlease make sure the columns of sample names and files names are chosen correctly.")
-        )
+        validate(need(try(cts()), ""),
+                 need(ncol(cts()) >= 1, "Name matching returns count matrix with 0 samples.\nPlease make sure the columns of sample names and files names are chosen correctly."))
         trubble(cts())
     })
     
     
     # Computation - UI
     output$compute_button <- renderUI({
-        validate(
-            need(try(cts()),""),
-            need(try(mt()),"")
-        )
+        validate(need(try(cts()),""),
+                 need(try(mt()),""))
         button01(id = "cts_compute",
                  text = "Compute",
                  icon = "calculator",
@@ -179,19 +163,15 @@ server <- function(input, output, session) {
 
     # Computation - Messages
     output$compute_message <- renderText({
-        validate(
-            need(!is.null(dds()), ""),
-            need(!is.null(vsd()), "")
-        )
+        validate(need(!is.null(dds()), ""),
+                 need(!is.null(vsd()), ""))
         paste0("Initial computation done.\nYou can explore your data in other panels.")
     })
     
     
     # PCA Sample Distance - UI
     output$pca_var_ui <- renderUI({
-        validate(
-            need(!is.null(vsd()), "")
-        )
+        validate(need(!is.null(vsd()), ""))
         select01(id = "pca_var_ch", 
                  text = "Variable for PCA Plot and Heatmap",
                  choices = colnames(vsd()@colData))

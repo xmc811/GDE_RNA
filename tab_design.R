@@ -15,24 +15,16 @@ tab_file <- tabPanel(
                 uiOutput("upload_panel")
             ),
             conditionalPanel(
-                condition = "input.count_source == 'Upload' &&
+                condition = "input.cts_source == 'Upload' &&
                              input.count_panel == 1",
-                shinyFilesButton('count_upload', 
-                                 label = 'Select RNA Count Files', 
-                                 title = 'Please select HTSeq RNA count files', 
-                                 multiple = TRUE),
+                file_cts_upload(),
                 br(),
-                fileInput(inputId = "meta_input",
-                          label = " ",
-                          buttonLabel = "Upload Metadata..")
+                file_meta_upload()
             ),
             
             conditionalPanel(
-                condition = "input.count_source == 'Select' &&
+                condition = "input.cts_source == 'Select' &&
                              input.count_panel == 1",
-                fileInput(inputId = "meta_input",
-                          label = NULL,
-                          buttonLabel = "Upload Metadata.."),
                 br()
             ),
             conditionalPanel(
