@@ -287,20 +287,16 @@ server <- function(input, output, session) {
             need(vsd(), "VSD object not computed. PCA not available.")
         )
         if (input$cluster_sw == TRUE) {
-            
-            vsd_pca_km(vsd(), km_res(), input$pal_cat)
-            
+            plot_pca_vsd_km(vsd(), km_res(), input$pal_cat)
         } else if (is.numeric(dds()@colData[[input$pca_var_ch]])) {
-            vsd_pca(dds(), 
-                    vsd(), 
-                    input$pca_var_ch, 
-                    input$pal_con,
-                    ifelse(input$pal_dir, 1, -1))
+            plot_pca_vsd(vsd(), 
+                         input$pca_var_ch, 
+                         input$pal_con,
+                         ifelse(input$pal_dir, 1, -1))
         } else {
-            vsd_pca(dds(), 
-                    vsd(), 
-                    input$pca_var_ch, 
-                    input$pal_cat)
+            plot_pca_vsd(vsd(), 
+                         input$pca_var_ch, 
+                         input$pal_cat)
         }
     },
     height = plot_height,

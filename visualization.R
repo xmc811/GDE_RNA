@@ -96,29 +96,6 @@ deseq_pca <- function(dds, var, palette, dir) {
     }})
 }
 
-
-vsd_pca <- function(dds, vsd, var, palette, dir) {
-    
-    withProgress(message = "Plotting...", value = 0, {
-        
-        if (is.numeric(dds@colData[[var]])) {
-            
-            DESeq2::plotPCA(vsd, intgroup = var) +
-                scale_color_distiller(palette = palette, direction = dir) +
-                labs(color = var) +
-                theme_bw() +
-                theme(aspect.ratio = 1)
-            
-        } else {
-            
-            DESeq2::plotPCA(vsd, intgroup = var) +
-                scale_color_brewer(palette = palette) +
-                labs(color = var) +
-                theme_bw() +
-                theme(aspect.ratio = 1)
-        }})
-}
-
 vsd_km <- function(vsd, k) {
     
     pca <- DESeq2::plotPCA(vsd, 
@@ -131,15 +108,12 @@ vsd_km <- function(vsd, k) {
     return(km_res)
 }
 
-vsd_pca_km <- function(vsd, km_res, palette) {
+plot_pca_vsd_km <- function(vsd, km_res, palette) {
     
     vsd@colData$Kmeans <- LETTERS[km_res$cluster]
-    
-    DESeq2::plotPCA(vsd, intgroup = "Kmeans") +
-        scale_color_brewer(palette = palette) +
-        labs(color = "Kmeans") +
-        theme_bw() +
-        theme(aspect.ratio = 1)
+    plot_pca_vsd(vsd, 
+                 "Kmeans", 
+                 palette)
 }
 
 deseq_ma <- function(res, p_co, lfc_co, lfc_plot_lim = 5) {
