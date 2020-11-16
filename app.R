@@ -30,21 +30,26 @@ ui <- navbarPage(
 # server function
 server <- function(input, output, session) {
     
+    # ----------
+    # Data Input Tab
+    # ----------
+    
+    # Raw Data Input - UI
     output$upload_panel <- renderUI({
         list(
             h3("RNA-seq Raw Data Input"),
             br(),
             h4("Data Source"),
-            upload_widgets  # ui_design.R
+            upload_widgets
         )
     })
     
-    # Multiple file upload 
     shinyFileChoose(input, 
                     id = 'count_upload', 
                     roots = c(home = "~/"),
                     filetypes = "tsv")
     
+    # Raw Data Input - Generation of Raw Counts and Metadata 
     mt_raw <- eventReactive(input$count_start, {
         if (input$count_source == "Example") {
             read_csv("./data/metadata.csv")
@@ -58,12 +63,12 @@ server <- function(input, output, session) {
             readRDS("./data/example_mtx.rds")
         } else if (input$count_source == "Upload"){
             roots <- c(home = "~/")
-            files_path <- parseFilePaths(roots, 
-                                         input$count_upload)$datapath
+            files_path <- parseFilePaths(roots, input$count_upload)$datapath
             htseq_to_mtx(files_path)
         } else {}
     })
     
+    # Raw Data Input - Messages
     output$mt_message <- renderText({
         validate(
             need(input$count_source,"")
@@ -95,7 +100,7 @@ server <- function(input, output, session) {
     })
 
     
-    
+    # Pre Processing of Raw Data - UI
     output$cts_proc <- renderUI({
         validate(
             need(input$count_source,"")
@@ -125,7 +130,7 @@ server <- function(input, output, session) {
     })
     
     
-    
+    # Pre Processing of Raw Data - Generation of Counts and Metadata
     cts <- eventReactive(input$cts_start, 
                          {mtx_name_match(cts_raw(), 
                                          mt_raw(), 
@@ -133,14 +138,14 @@ server <- function(input, output, session) {
                                          input$meta_file_col,
                                          input$count_co)
     })
-    
+
     mt <- reactiveVal()
     
     observeEvent(input$cts_start,{
         mt(filter_mt(cts(), mt_raw()))
     })
     
-    
+    # Pre Processing of Raw Data - Messages
     output$cts_summary <- renderPrint({
         validate(
             need(try(cts()), ""),
@@ -149,6 +154,8 @@ server <- function(input, output, session) {
         trubble(cts())
     })
     
+    
+    # Computation - UI
     output$compute_button <- renderUI({
         validate(
             need(try(cts()),""),
@@ -160,6 +167,8 @@ server <- function(input, output, session) {
                  style = "color: white; background-color: #0570b0;")
     })
     
+    
+    # Computation - Generation of DDS and VSD
     dds <- reactiveVal()
     vsd <- reactiveVal()
     
@@ -168,7 +177,7 @@ server <- function(input, output, session) {
         vsd(DESeq2::vst(dds(), blind = FALSE))
     })
 
-    
+    # Computation - Messages
     output$compute_message <- renderText({
         validate(
             need(!is.null(dds()), ""),
@@ -177,8 +186,8 @@ server <- function(input, output, session) {
         paste0("Initial computation done.\nYou can explore your data in other panels.")
     })
     
-    # PCA Plot
     
+    # PCA Sample Distance - UI
     output$pca_var_ui <- renderUI({
         validate(
             need(!is.null(vsd()), "")
@@ -206,21 +215,9 @@ server <- function(input, output, session) {
         cluster_widgets
     })
     
-    
-    km_res <- reactive({
-        vsd_km(vsd(), input$n_cluster)
-    })
-    
-    observeEvent(input$assign_clu, {
-        dds(assign_km_clu(dds(), km_res()))
-        vsd(assign_km_clu(vsd(), km_res()))
-        mt(assign_km_clu_col(mt(), km_res()))
-    })
-    
     # Plot Size
-    
     output$plot_size <- renderUI({
-            plot_size_widgets
+        plot_size_widgets
     })
     
     plot_height <- reactive({
@@ -238,8 +235,19 @@ server <- function(input, output, session) {
         )
         return(input$plot_width)
     })
-
     
+    # PCA - Clustering
+    km_res <- reactive({
+        vsd_km(vsd(), input$n_cluster)
+    })
+    
+    observeEvent(input$assign_clu, {
+        dds(assign_km_clu(dds(), km_res()))
+        vsd(assign_km_clu(vsd(), km_res()))
+        mt(assign_km_clu_col(mt(), km_res()))
+    })
+    
+    # PCA - Plotting
     output$pca <- renderPlot({
         validate(
             need(vsd(), "VSD object not computed. PCA not available.")
@@ -258,10 +266,9 @@ server <- function(input, output, session) {
                          var = input$pca_var_ch, 
                          pal =input$pal_cat)
         }
-    }, height = plot_height, width = plot_width
-    )
+    }, height = plot_height, width = plot_width)
     
-    # Sample Distances
+    # Sample Distance - Plotting
     
     output$hm <- renderPlot({
         validate(
@@ -271,8 +278,7 @@ server <- function(input, output, session) {
                          var = input$pca_var_ch, 
                          pal = input$pal_con, 
                          dir = input$pal_dir)
-    }, height = plot_height, width = plot_width
-    )
+    }, height = plot_height, width = plot_width)
     
     # DGE
     

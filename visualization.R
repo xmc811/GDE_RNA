@@ -1,14 +1,11 @@
 
 
 vsd_km <- function(vsd, k) {
-    
     pca <- DESeq2::plotPCA(vsd, 
                            intgroup = colnames(vsd@colData)[1],
                            returnData = TRUE)
-    
     set.seed(42)
     km_res <- kmeans(pca[,1:2], k)
-    
     return(km_res)
 }
 
@@ -16,6 +13,7 @@ plot_pca_vsd_km <- function(vsd, km_res, pal) {
     vsd@colData$Kmeans <- LETTERS[km_res$cluster]
     plot_pca_vsd(vsd, "Kmeans", pal)
 }
+
 
 deseq_ma <- function(res, p_co, lfc_co, lfc_plot_lim = 5) {
     
