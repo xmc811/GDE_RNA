@@ -31,6 +31,13 @@ button_assign_cluster <- function() {
                  style = "color: white; background-color: #2ca25f;margin-top: 25px; float:right; margin-right: 5px;")
 }
 
+button_dge <- function() {
+    actionButton(inputId = "dge_click", 
+                 label = "Start DGE",
+                 icon = icon("bar-chart"),
+                 style = "color: white; background-color: #0570b0;")
+}
+
 # Radio Selections
 radio_source <- function() {
     radioGroupButtons(inputId = "cts_source",

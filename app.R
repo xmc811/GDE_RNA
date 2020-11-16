@@ -243,64 +243,47 @@ server <- function(input, output, session) {
     }, height = plot_height, width = plot_width)
     
     # DGE
-    output$dge_var <- renderUI({
-        validate(
-            need(try(mt()),"")
-        )
-            selectInput(inputId = "dge_var_ch", 
+    output$dge_var_ui <- renderUI({
+        validate(need(try(mt()),""))
+            selectInput(inputId = "dge_var", 
                         label = "Variable for DGE",
                         choices = colnames(mt()))
     })
     
     output$dge_group1 <- renderUI({
-        validate(
-            need(try(mt()),"")
-        )
+        validate(need(try(mt()),""))
         selectInput(inputId = "dge_g1", 
                     label = "Group 1",
-                    choices = unique(mt()[[input$dge_var_ch]]))
-        
+                    choices = unique(mt()[[input$dge_var]]))
     })
     
     output$dge_group2 <- renderUI({
-        validate(
-            need(try(mt()),"")
-        )
+        validate(need(try(mt()),""))
         selectInput(inputId = "dge_g2", 
                     label = "Group 2",
-                    choices = setdiff(unique(mt()[[input$dge_var_ch]]),
+                    choices = setdiff(unique(mt()[[input$dge_var]]),
                                       input$dge_g1))
     })
     
     output$dge_button <- renderUI({
-        validate(
-            need(try(cts()),""),
-            need(try(mt()),"")
-        )
-        actionButton(
-            inputId = "dge_start",
-            label = "Start DGE",
-            icon = icon("bar-chart"),
-            style = "color: white; background-color: #0570b0;")
+        validate(need(try(cts()),""),
+                 need(try(mt()),""))
+        button_dge()
     })
     
     dds_run <- reactiveVal()
     res <- reactiveVal()
     
-    observeEvent(input$dge_start,{
-        
-        dds_run(cts_to_dds(cts(), mt(), input$dge_var_ch))
+    observeEvent(input$dge_click,{
+        dds_run(cts_to_dds(cts(), mt(), input$dge_var))
         res(DESeq2::results(dds_run(), 
-                            contrast = c(input$dge_var_ch, 
+                            contrast = c(input$dge_var, 
                                          input$dge_g1, 
                                          input$dge_g2)))
     })
     
-    
     output$dge_message <- renderText({
-        validate(
-            need(try(res()), "")
-        )
+        validate(need(try(res()), ""))
         paste0("Differential gene expression (DGE) analysis done\n\n",
                res()@elementMetadata[2,2] %>%
                    str_remove("^.*:") %>%
@@ -309,9 +292,7 @@ server <- function(input, output, session) {
     })
     
     
-    
-    
-    # DGE Visualization UIs
+    # DGE Visualization UI
     
     output$viz_plot_size <- renderUI({
         validate(

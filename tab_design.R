@@ -73,7 +73,7 @@ tab_file <- tabPanel(
             ),
             conditionalPanel(
                 condition = "input.count_panel == 4",
-                uiOutput("dge_var"),
+                uiOutput("dge_var_ui"),
                 uiOutput("dge_group1"),
                 uiOutput("dge_group2"),
                 uiOutput("dge_button")
