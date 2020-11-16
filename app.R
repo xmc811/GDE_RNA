@@ -331,68 +331,13 @@ server <- function(input, output, session) {
     })
     
     output$viz_gene_ui <- renderUI({
-        validate(
-            need(try(res()), "")
-        )
-        list(
-            h4("Gene List"),
-            radioGroupButtons(inputId = "viz_gene_src",
-                              label = NULL,
-                              choices = c("Use Top Genes",
-                                          "Manual Input",
-                                          "Upload File"),
-                              justified = TRUE),
-            conditionalPanel(
-                condition = "input.viz_gene_src == 'Use Top Genes'",
-                splitLayout(sliderInput(inputId = "rna_gene_num",
-                                        label = "Number of Genes", 
-                                        min = 1, max = 50, value = 6),
-                            actionButton(
-                                inputId = "rna_gene_read1",
-                                label = "Plot",
-                                icon = icon("check"),
-                                style = "color: white; background-color: #737373; margin-top: 25px; float:right; margin-right: 5px;"),
-                            cellWidths = c("75%", "25%")
-                            )
-                ),
-            conditionalPanel(
-                condition = "input.viz_gene_src == 'Manual Input'",
-                splitLayout(textInput("rna_genes_man", 
-                                      label = NULL, 
-                                      value = ""),
-                            actionButton(
-                                inputId = "rna_gene_read2",
-                                label = "Plot",
-                                icon = icon("check"),
-                                style = "color: white; background-color: #737373; float:right; margin-right: 5px;"),
-                            cellWidths = c("75%", "25%")
-                            )
-                ),
-            conditionalPanel(
-                condition = "input.viz_gene_src == 'Upload File'",
-                fileInput(inputId = "rna_genes_file",
-                          label = NULL,
-                          buttonLabel = "Browse..")
-                ),
-            br()
-            )
+        validate(need(try(res()), ""))
+        gene_selection_widgets
         })
     
     output$pathway_ui <- renderUI({
-        list(
-            h4("Pathway List"),
-            splitLayout(radioGroupButtons(inputId = "rna_pathway_src",
-                                          label = NULL,
-                                          choices = c("Use Hallmarks",
-                                                      "Upload File"),
-                                          justified = TRUE),
-                        cellWidths = "67%"),
-            conditionalPanel(
-                condition = "input.rna_pathway_src == 'Upload File'",
-                fileInput(inputId = "rna_pathway_file",
-                          label = NULL,
-                          buttonLabel = "Browse.."))
-        )
+        validate(need(try(res()), ""))
+        pathway_selection_widgets
     })
     
     
@@ -413,46 +358,41 @@ server <- function(input, output, session) {
           input$rna_gene_read2,
           input$rna_genes_file),
         {
-            if(input$viz_gene_src == 'Use Top Genes') {
-                get_rna_genes(res())[1:input$rna_gene_num]
-            } else if (input$viz_gene_src == 'Manual Input') {
-                validate(
-                    need(input$rna_genes_man, "Please Input Gene List")
-                )
+            if(input$gene_source == 'Use Top Genes') {
+                get_top_genes(res())[1:input$rna_gene_num]
+            } else if (input$gene_source == 'Manual Input') {
+                validate(need(input$rna_genes_man, "Please Input Gene List"))
                 parse_rna_genes(input$rna_genes_man)
             } else {
-                validate(
-                    need(input$rna_genes_file, "Please Upload Gene List")
-                )
+                validate(need(input$rna_genes_file, "Please Upload Gene List"))
                 readLines(input$rna_genes_file$datapath)
             }}
         )
     
     rna_pathways <- reactive({
-        
-        if(input$rna_pathway_src == 'Use Hallmarks') {
+        if(input$pathway_source == 'Use Hallmarks') {
             hmks_hs
         } else {
-            validate(
-                need(input$rna_pathway_file, "Please Upload Pathway File")
-            )
+            validate(need(input$rna_pathway_file, "Please Upload Pathway File"))
             read_csv(input$rna_pathway_file$datapath, 
-                     col_names = FALSE) %>%
-                df_to_signature()
-        }}
-        )
+                     col_names = FALSE) %>% df_to_signature()
+        }})
     
     
-    # DGE Visualization Panels
+    # DGE Visualization Results
+    validate_res <- function() {
+        validate(need(try(res()), "No DGE results. Visualization not available."))
+    }
+    
     output$res_table <- DT::renderDataTable({
-        validate(need(try(res()), "No DGE results. Table not available."))
+        validate_res()
         deseq_table(res(), 
                     input$p_co, 
                     input$lfc_co)
     })
     
     output$res_ma <- renderPlot({
-        validate(need(try(res()), "No DGE results. Plot not available."))
+        validate_res()
         plot_deseq_ma(res(),
                       input$p_co, 
                       input$lfc_co,
@@ -460,7 +400,7 @@ server <- function(input, output, session) {
     }, height = viz_plot_height, width = viz_plot_width)
     
     output$res_volcano <- renderPlot({
-        validate(need(try(res()), "No DGE results. Plot not available."))
+        validate_res()
         plot_deseq_volcano(res(), 
                            input$p_co, 
                            input$lfc_co,
@@ -468,31 +408,27 @@ server <- function(input, output, session) {
                            input$lfc_plot_lim)
     }, height = viz_plot_height, width = viz_plot_width)
     
-    
     output$res_box <- renderPlot({
-        validate(need(try(res()), "No DGE results. Plot not available."))
-        deseq_box(dds_run(), 
-                  rna_genes(),
-                  input$box_var, 
-                  input$viz_pal_categorical)
+        validate_res()
+        plot_gene_boxplot(dds_run(), 
+                          rna_genes(),
+                          input$box_var, 
+                          input$viz_pal_categorical)
     }, height = viz_plot_height, width = viz_plot_width)
-    
     
     output$res_cluster <- renderPlot({
-        validate(need(try(res()), "No DGE results. Plot not available."))
-        deseq_cluster(dds_run(), 
-                      rna_genes(),
-                      input$viz_pal_continuous, 
-                      input$viz_pal_dir)
+        validate_res()
+        plot_sample_gene_mtx(dds_run(), 
+                             rna_genes(),
+                             input$viz_pal_continuous, 
+                             input$viz_pal_dir)
     }, height = viz_plot_height, width = viz_plot_width)
     
-    
     output$res_gsea <- renderPlot({
-        deseq_gsea(res(),
-                   rna_pathways())
-    }, 
-    height = viz_plot_height, 
-    width = viz_plot_width)
+        validate_res()
+        plot_deseq_gsea(res_to_gsea(res(), 
+                                    rna_pathways()))
+    }, height = viz_plot_height, width = viz_plot_width)
     
     
     # Help

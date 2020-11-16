@@ -38,11 +38,32 @@ button_dge <- function() {
                  style = "color: white; background-color: #0570b0;")
 }
 
+button_read_gene <- function(value) {
+    actionButton(inputId = paste0("rna_gene_read", as.character(value)),
+                 label = "Plot",
+                 icon = icon("check"),
+                 style = "color: white; background-color: #737373; margin-top: 25px; float:right; margin-right: 5px;")
+}
+
 # Radio Selections
 radio_source <- function() {
     radioGroupButtons(inputId = "cts_source",
                       label  = NULL,
                       choices = c("Example","Upload","Select"),
+                      justified = TRUE)
+}
+
+radio_gene_source <- function() {
+    radioGroupButtons(inputId = "gene_source",
+                      label  = NULL,
+                      choices = c("Use Top Genes","Manual Input","Upload File"),
+                      justified = TRUE)
+}
+
+radio_pathway_source <- function() {
+    radioGroupButtons(inputId = "pathway_source",
+                      label = NULL,
+                      choices = c("Use Hallmarks","Upload File"),
                       justified = TRUE)
 }
 
@@ -58,6 +79,12 @@ file_meta_upload <- function() {
     fileInput(inputId = "meta_file",
               label = " ",
               buttonLabel = "Upload Metadata..")
+}
+
+file_gene_pathway_upload <- function(id) {
+    fileInput(inputId = id,
+              label = NULL,
+              buttonLabel = "Browse..")
 }
 
 
@@ -132,6 +159,21 @@ number_lfc_limit <- function() {
                  value = 5)
 }
 
+# Sliders
+
+slider_gene_num <- function() {
+    sliderInput(inputId = "rna_gene_num",
+                label = "Number of Genes", 
+                min = 0, max = 50, value = 6)
+}
+
+# Texts
+
+text_gene_names <- function() {
+    textInput("rna_genes_man", 
+              label = NULL, 
+              value = "")
+}
 
 # ----------
 # UI components
@@ -164,6 +206,37 @@ dge_cutoff_widgets <- splitLayout(number_p_cutoff(),
 
 dge_plot_limit_widgets <- splitLayout(number_p_limit(),
                                       number_lfc_limit())
+
+top_gene_widgets <- splitLayout(slider_gene_num(),
+                                button_read_gene(1),
+                                cellWidths = c("75%", "25%"))
+
+manual_gene_widgets <- splitLayout(text_gene_names(),
+                                   button_read_gene(2),
+                                   cellWidths = c("75%", "25%"))
+
+
+gene_selection_widgets <- list(h4("Gene List"),
+                               radio_gene_source(),
+                               conditionalPanel(
+                                   condition = "input.gene_source == 'Use Top Genes'",
+                                   top_gene_widgets),
+                               conditionalPanel(
+                                   condition = "input.gene_source == 'Manual Input'",
+                                   manual_gene_widgets),
+                               conditionalPanel(
+                                   condition = "input.gene_source == 'Upload File'",
+                                   file_gene_pathway_upload("rna_genes_file")),
+                               br()
+                               )
+
+pathway_selection_widgets <- list(h4("Pathway List"),
+                                  splitLayout(radio_pathway_source(), 
+                                              cellWidths = "67%"),
+                                  conditionalPanel(
+                                      condition = "input.pathway_source == 'Upload File'",
+                                      file_gene_pathway_upload("rna_pathway_file"))
+                                  )
 
 
 

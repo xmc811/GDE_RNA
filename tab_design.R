@@ -1,7 +1,4 @@
 
-hmks_hs <- fgsea::gmtPathways("./data/h.all.v7.0.symbols.gmt")
-
-
 tab_file <- tabPanel(
     
     title = "Data Input",
