@@ -169,11 +169,9 @@ trubble <- function(cts) {
     gen <- gsub("\\s", " ", format(gen, width = max(nchar(gen))))
     
     if (ncol(tmp) > 10) {
-        output2 <- paste("\nSamples not shown:\n\n")
-        output3 <- paste(colnames(tmp[11:ncol(tmp)]))
+        output2 <- paste("\n", ncol(tmp) - 10, "Samples not shown\n")
     } else {
         output2 <- NULL
-        output3 <- NULL
     }
     
     cat(output, "\n")
@@ -182,8 +180,5 @@ trubble <- function(cts) {
     }
     
     cat(output2)
-    for (i in 1:length(output3)) {
-        cat("  ", output3[i], "\n")
-    }
 }
 

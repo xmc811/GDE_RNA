@@ -7,21 +7,21 @@ button_cts_upload <- function() {
     actionButton(inputId = "cts_upload_click", 
                  label = "Upload", 
                  icon = icon("upload"), 
-                 style = "color:white; background-color:#0570b0; float:right; margin-right:5px;")
+                 style = "color:white; background-color:#0570b0; float:right; margin-right:5px; width:150px; max-width:90%;")
 }
 
 button_cts_process <- function() {
     actionButton(inputId = "cts_process_click", 
                  label = "Pre-Process", 
                  icon = icon("files-o"), 
-                 style = "color:white; background-color:#2ca25f; width:150px;")
+                 style = "color:white; background-color:#0570b0; width:140px;")
 }
 
 button_cts_compute <- function() {
     actionButton(inputId = "cts_compute_click", 
                  label = "Compute", 
                  icon = icon("calculator"), 
-                 style = "color:white; background-color:#0570b0; width:150px;")
+                 style = "color:white; background-color:#2ca25f; width:140px;")
 }
 
 button_assign_cluster <- function() {
@@ -41,7 +41,7 @@ button_dge <- function() {
 button_read_gene <- function(value) {
     actionButton(inputId = paste0("rna_gene_read", as.character(value)),
                  label = "Plot",
-                 icon = icon("check"),
+                 icon = icon("picture-o"),
                  style = "color:white; background-color:#737373; margin-top:25px; float:right; margin-right:5px;")
 }
 
