@@ -7,42 +7,42 @@ button_cts_upload <- function() {
     actionButton(inputId = "cts_upload_click", 
                  label = "Upload", 
                  icon = icon("upload"), 
-                 style = "color: white; background-color: #0570b0; float:right; margin-right: 5px;")
+                 style = "color:white; background-color:#0570b0; float:right; margin-right:5px;")
 }
 
 button_cts_process <- function() {
     actionButton(inputId = "cts_process_click", 
                  label = "Pre-Process", 
                  icon = icon("files-o"), 
-                 style = "color: white; background-color: #2ca25f")
+                 style = "color:white; background-color:#2ca25f; width:150px;")
 }
 
 button_cts_compute <- function() {
     actionButton(inputId = "cts_compute_click", 
                  label = "Compute", 
                  icon = icon("calculator"), 
-                 style = "color: white; background-color: #0570b0;")
+                 style = "color:white; background-color:#0570b0; width:150px;")
 }
 
 button_assign_cluster <- function() {
     actionButton(inputId = "assign_cluster_click", 
                  label = "Assign K-means Cluster", 
                  icon = icon("calculator"), 
-                 style = "color: white; background-color: #2ca25f;margin-top: 25px; float:right; margin-right: 5px;")
+                 style = "color:white; background-color:#2ca25f; margin-top:25px; float:right; margin-right:5px;")
 }
 
 button_dge <- function() {
     actionButton(inputId = "dge_click", 
                  label = "Start DGE",
                  icon = icon("bar-chart"),
-                 style = "color: white; background-color: #0570b0;")
+                 style = "color:white; background-color:#0570b0;")
 }
 
 button_read_gene <- function(value) {
     actionButton(inputId = paste0("rna_gene_read", as.character(value)),
                  label = "Plot",
                  icon = icon("check"),
-                 style = "color: white; background-color: #737373; margin-top: 25px; float:right; margin-right: 5px;")
+                 style = "color:white; background-color:#737373; margin-top:25px; float:right; margin-right:5px;")
 }
 
 # Radio Selections
@@ -101,7 +101,7 @@ switch_cluster_mode <- function() {
                    right = TRUE)
 }
 
-#Selections
+# Selections
 select_palette <- function(tab, type) {
     all_pals <- rownames(brewer.pal.info)
     if (type == "categorical") {
@@ -160,7 +160,6 @@ number_lfc_limit <- function() {
 }
 
 # Sliders
-
 slider_gene_num <- function() {
     sliderInput(inputId = "rna_gene_num",
                 label = "Number of Genes", 
@@ -168,11 +167,15 @@ slider_gene_num <- function() {
 }
 
 # Texts
-
 text_gene_names <- function() {
     textInput("rna_genes_man", 
               label = NULL, 
               value = "")
+}
+
+# Messages
+message_plot_size <- function(type) {
+    paste("Plot", type, "shouldn't exceed 4000px.")
 }
 
 # ----------

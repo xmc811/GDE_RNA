@@ -22,9 +22,9 @@ ui <- navbarPage(
     tab_help,
     tab_about,
     
-    tags$head(tags$link(rel="stylesheet", 
-                        type="text/css", 
-                        href="style.css"))
+    tags$head(tags$link(rel = "stylesheet", 
+                        type = "text/css", 
+                        href = "style.css"))
 )
 
 # server function
@@ -194,12 +194,12 @@ server <- function(input, output, session) {
     })
     
     plot_height <- reactive({
-        validate(need(input$plot_height < 4000, "Plot height shouldn't exceed 4000px."))
+        validate(need(input$plot_height < 4000, message_plot_size("height")))
         return(input$plot_height)
     })
     
     plot_width <- reactive({
-        validate(need(input$plot_width < 4000, "Plot width shouldn't exceed 4000px."))
+        validate(need(input$plot_width < 4000, message_plot_size("width")))
         return(input$plot_width)
     })
     
@@ -215,8 +215,13 @@ server <- function(input, output, session) {
     })
     
     # PCA - Plotting
+    validate_vsd <- function() {
+        validate(need(try(vsd()), "VSD object not computed. Visualization not available."))
+    }
+    
+    
     output$pca <- renderPlot({
-        validate(need(vsd(), "VSD object not computed. PCA not available."))
+        validate_vsd()
         if (input$cluster_sw == TRUE) {
             plot_pca_vsd_km(vsd = vsd(), 
                             km_res = km_res(), 
@@ -235,7 +240,7 @@ server <- function(input, output, session) {
     
     # Sample Distance - Plotting
     output$hm <- renderPlot({
-        validate(need(vsd(), "VSD object not computed. Heatmap not available."))
+        validate_vsd()
         plot_heatmap_vsd(vsd = vsd(), 
                          var = input$pca_var, 
                          pal = input$pal_continuous, 
@@ -343,12 +348,12 @@ server <- function(input, output, session) {
     
     # DGE Visualization Parameters
     viz_plot_height <- reactive({
-        validate(need(input$viz_plot_height < 4000, "Plot height shouldn't exceed 4000px."))
+        validate(need(input$viz_plot_height < 4000, message_plot_size("height")))
         return(input$viz_plot_height)
     })
     
     viz_plot_width <- reactive({
-        validate(need(input$viz_plot_width < 4000, "Plot width shouldn't exceed 4000px."))
+        validate(need(input$viz_plot_width < 4000, message_plot_size("width")))
         return(input$viz_plot_width)
     })
     
