@@ -12,14 +12,6 @@ tab_file <- tabPanel(
                 uiOutput("upload_panel")
             ),
             conditionalPanel(
-                condition = "input.cts_source == 'Upload' &&
-                             input.count_panel == 1",
-                file_cts_upload(),
-                br(),
-                file_meta_upload()
-            ),
-            
-            conditionalPanel(
                 condition = "input.cts_source == 'Select' &&
                              input.count_panel == 1",
                 br()

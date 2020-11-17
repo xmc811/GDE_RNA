@@ -44,11 +44,6 @@ server <- function(input, output, session) {
         )
     })
     
-    shinyFileChoose(input, 
-                    id = 'cts_files', 
-                    roots = c(home = "~/"),
-                    filetypes = "tsv")
-    
     # Raw Data Input - Generation of Raw Counts and Metadata 
     mt_raw <- eventReactive(input$cts_upload_click, {
         if (input$cts_source == "Example") {
@@ -62,15 +57,13 @@ server <- function(input, output, session) {
         if (input$cts_source == "Example") {
             readRDS("./data/example_mtx.rds")
         } else if (input$cts_source == "Upload"){
-            roots <- c(home = "~/")
-            files_path <- parseFilePaths(roots, input$cts_files)$datapath
-            htseq_to_mtx(files_path)
+            htseq_to_mtx(input$cts_files)
         } else {}
     })
     
     # Raw Data Input - Messages
     output$mt_message <- renderText({
-        validate(need(input$cts_source,""))
+        validate(need(input$cts_source, ""))
         if (input$cts_source == "Example") {} 
         else if (input$cts_source == "Upload") {
             validate(need(input$meta_file, "Please Upload Metadata"))
@@ -98,7 +91,7 @@ server <- function(input, output, session) {
     
     
     output$cts_proc <- renderUI({
-        validate(need(input$cts_source,""))
+        validate(need(input$cts_source, ""))
         if (input$cts_source == "Example") {
         } else if (input$cts_source == "Upload") {
             validate(need(input$meta_file, "Please Upload Metadata"),
@@ -135,7 +128,14 @@ server <- function(input, output, session) {
     # Pre Processing of Raw Data - Messages
     output$cts_summary <- renderPrint({
         validate(need(try(cts()), ""),
-                 need(ncol(cts()) >= 1, "Name matching returns count matrix with 0 samples.\nPlease make sure the columns of sample names and files names are chosen correctly."))
+                 need(ncol(cts()) >= 1, paste(ncol(cts()), 
+                                              ncol(cts_raw()),
+                                              nrow(cts_raw()),
+                                              ncol(mt_raw()),
+                                              nrow(mt_raw()),
+                                              colnames(cts_raw()),
+                                              #mt_raw()[[input$meta_file_col]],
+                                              "Name matching returns count matrix with 0 samples.\nPlease make sure the columns of sample names and files names are chosen correctly.")))
         trubble(cts())
     })
     

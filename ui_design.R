@@ -69,16 +69,16 @@ radio_pathway_source <- function() {
 
 # File Uploading
 file_cts_upload <- function() {
-    shinyFilesButton(id = 'cts_files', 
-                     label = 'Select RNA Count Files', 
-                     title = 'Please select HTSeq RNA count files', 
-                     multiple = TRUE)
+    fileInput(inputId = "cts_files",
+              label = " ",
+              multiple = TRUE,
+              buttonLabel = "Upload HTSeq Counts Files..")
 }
 
 file_meta_upload <- function() {
     fileInput(inputId = "meta_file",
               label = " ",
-              buttonLabel = "Upload Metadata..")
+              buttonLabel = "Upload Metadata File..")
 }
 
 file_gene_pathway_upload <- function(id) {
@@ -182,9 +182,15 @@ message_plot_size <- function(type) {
 # UI components
 # ----------
 
-upload_widgets <- splitLayout(radio_source(),
-                              button_cts_upload(),
-                              cellWidths = c("67%", "33%"))
+upload_widgets <- list(radio_source(),
+                         conditionalPanel(
+                             condition = "input.cts_source == 'Upload' &&
+                             input.count_panel == 1",
+                             file_cts_upload(),
+                             file_meta_upload()
+                         ),
+                         button_cts_upload(),
+                         br())
 
 palette_widgets <- splitLayout(select_palette("", "categorical"),
                                select_palette("", "continuous"))

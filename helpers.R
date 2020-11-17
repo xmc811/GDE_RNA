@@ -45,20 +45,21 @@ parse_rna_genes <- function(gene_list) {
 
 
 htseq_to_mtx <- function(files) {
+    
     withProgress(message = "Processing HTSeq Count Files", value = 0.1, {
     df_list <- list()
     
     incProgress(0.1, message = "Read Count Files...")
     
-    for (i in 1: length(files)) {
-        df <- read.table(files[i], header = TRUE)
+    for (i in 1:length(files$datapath)) {
+        df <- read.table(files$datapath[i], header = TRUE)
         df$symbol <- str_split(df$gene_id, pattern = "\\|") %>%
             map_chr(.f = `[`(1))
         df %<>%
             filter(symbol != "?") %>%
             select(symbol, raw_count)
         df <- df[!duplicated(df$symbol),]
-        df$sample <- basename(files)[i]
+        df$sample <- basename(files$name)[i]
         df_list[[i]] <- df
     }
     
@@ -73,6 +74,8 @@ htseq_to_mtx <- function(files) {
     return(mtx)
     })
 }
+
+
 
 mtx_name_match <- function(mtx, metadata, sample_col, file_col, cutoff) {
     
