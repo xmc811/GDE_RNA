@@ -92,8 +92,6 @@ mtx_name_match <- function(mtx, metadata, sample_col, file_col, cutoff) {
 }
 
 
-
-
 get_count_message <- function(mtx) {
     
     msg <- paste0(ncol(mtx), 

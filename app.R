@@ -128,14 +128,7 @@ server <- function(input, output, session) {
     # Pre Processing of Raw Data - Messages
     output$cts_summary <- renderPrint({
         validate(need(try(cts()), ""),
-                 need(ncol(cts()) >= 1, paste(ncol(cts()), 
-                                              ncol(cts_raw()),
-                                              nrow(cts_raw()),
-                                              ncol(mt_raw()),
-                                              nrow(mt_raw()),
-                                              colnames(cts_raw()),
-                                              #mt_raw()[[input$meta_file_col]],
-                                              "Name matching returns count matrix with 0 samples.\nPlease make sure the columns of sample names and files names are chosen correctly.")))
+                 need(ncol(cts()) >= 1, "Name matching returns count matrix with 0 samples.\nPlease make sure the columns of sample names and files names are chosen correctly."))
         trubble(cts())
     })
     
@@ -221,6 +214,7 @@ server <- function(input, output, session) {
     
     
     output$pca <- renderPlot({
+        withProgress(message = "Plotting...", value = 0.5, {
         validate_vsd()
         if (input$cluster_sw == TRUE) {
             plot_pca_vsd_km(vsd = vsd(), 
@@ -236,15 +230,18 @@ server <- function(input, output, session) {
                          var = input$pca_var, 
                          pal =input$pal_categorical)
         }
+        })
     }, height = plot_height, width = plot_width)
     
     # Sample Distance - Plotting
     output$hm <- renderPlot({
+        withProgress(message = "Plotting...", value = 0.5, {
         validate_vsd()
         plot_heatmap_vsd(vsd = vsd(), 
                          var = input$pca_var, 
                          pal = input$pal_continuous, 
                          dir = input$pal_dir)
+        })
     }, height = plot_height, width = plot_width)
     
     # DGE
@@ -397,42 +394,52 @@ server <- function(input, output, session) {
     })
     
     output$res_ma <- renderPlot({
+        withProgress(message = "Plotting...", value = 0.5, {
         validate_res()
         plot_deseq_ma(res(),
                       input$p_co, 
                       input$lfc_co,
                       input$lfc_plot_lim)
+        })
     }, height = viz_plot_height, width = viz_plot_width)
     
     output$res_volcano <- renderPlot({
+        withProgress(message = "Plotting...", value = 0.5, {
         validate_res()
         plot_deseq_volcano(res(), 
                            input$p_co, 
                            input$lfc_co,
                            input$p_plot_lim,
                            input$lfc_plot_lim)
+        })
     }, height = viz_plot_height, width = viz_plot_width)
     
     output$res_box <- renderPlot({
+        withProgress(message = "Plotting...", value = 0.5, {
         validate_res()
         plot_gene_boxplot(dds_run(), 
                           rna_genes(),
                           input$box_var, 
                           input$viz_pal_categorical)
+        })
     }, height = viz_plot_height, width = viz_plot_width)
     
     output$res_cluster <- renderPlot({
+        withProgress(message = "Plotting...", value = 0.5, {
         validate_res()
         plot_sample_gene_mtx(dds_run(), 
                              rna_genes(),
                              input$viz_pal_continuous, 
                              input$viz_pal_dir)
+        })
     }, height = viz_plot_height, width = viz_plot_width)
     
     output$res_gsea <- renderPlot({
+        withProgress(message = "Plotting...", value = 0.5, {
         validate_res()
         plot_deseq_gsea(res_to_gsea(res(), 
                                     rna_pathways()))
+        })
     }, height = viz_plot_height, width = viz_plot_width)
     
     
