@@ -57,7 +57,9 @@ server <- function(input, output, session) {
         if (input$cts_source == "Example") {
             readRDS("./data/example_mtx.rds")
         } else if (input$cts_source == "Upload"){
+            withProgress(message = "Loading Data..", value = 0.5, {
             htseq_to_mtx(input$cts_files)
+            })
         } else {}
     })
     

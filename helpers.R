@@ -44,54 +44,6 @@ parse_rna_genes <- function(gene_list) {
 }
 
 
-htseq_to_mtx <- function(files) {
-    
-    withProgress(message = "Processing HTSeq Count Files", value = 0.1, {
-    df_list <- list()
-    
-    incProgress(0.1, message = "Read Count Files...")
-    
-    for (i in 1:length(files$datapath)) {
-        df <- read.table(files$datapath[i], header = TRUE)
-        df$symbol <- str_split(df$gene_id, pattern = "\\|") %>%
-            map_chr(.f = `[`(1))
-        df %<>%
-            filter(symbol != "?") %>%
-            select(symbol, raw_count)
-        df <- df[!duplicated(df$symbol),]
-        df$sample <- basename(files$name)[i]
-        df_list[[i]] <- df
-    }
-    
-    incProgress(0.5, message = "File Format Transformation...")
-    
-    a <- do.call("rbind", df_list)
-    a %<>%
-        pivot_wider(names_from = sample, 
-                    values_from = raw_count)
-    mtx <- as.matrix(a[2:ncol(a)])
-    rownames(mtx) <- a$symbol
-    return(mtx)
-    })
-}
-
-
-
-mtx_name_match <- function(mtx, metadata, sample_col, file_col, cutoff) {
-    
-    idx <- match(colnames(mtx), metadata[[file_col]])
-    
-    mtx <- mtx[,!is.na(idx)]
-    idx <- idx[!is.na(idx)]
-    
-    colnames(mtx) <- metadata[[sample_col]][idx]
-    
-    mtx <- mtx[rowSums(mtx) >= cutoff,]
-    return(mtx)
-    
-}
-
-
 get_count_message <- function(mtx) {
     
     msg <- paste0(ncol(mtx), 
@@ -100,9 +52,11 @@ get_count_message <- function(mtx) {
     return(msg)
 }
 
+
 filter_mt <- function(mtx, metadata) {
     metadata[match(colnames(mtx), metadata[["Sample"]]),]
 }
+
 
 cts_to_dds <- function(mtx, metadata, var = 1) {
     
@@ -124,6 +78,7 @@ assign_km_clu <- function(vsd, km_res) {
     vsd@colData$Kmeans <- LETTERS[km_res$cluster]
     return(vsd)
 }
+
 
 assign_km_clu_col <- function(coldata, km_res) {
     coldata$Kmeans <- LETTERS[km_res$cluster]
