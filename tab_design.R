@@ -194,30 +194,35 @@ tab_rna <- tabPanel(
                     value = 3,
                     title = "MA Plot",
                     br(),
+                    uiOutput("dl_ma_button"),
                     plotOutput("res_ma") 
                 ),
                 tabPanel(
                     value = 4,
                     title = "Volcano Plot",
                     br(),
+                    uiOutput("dl_volcano_button"),
                     plotOutput("res_volcano")
                 ),
                 tabPanel(
                     value = 6,
                     title = "Gene Boxplot",
                     br(),
+                    uiOutput("dl_box_button"),
                     plotOutput("res_box")
                 ),
                 tabPanel(
                     value = 7,
                     title = "Gene Clustering",
                     br(),
+                    uiOutput("dl_cluster_button"),
                     plotOutput("res_cluster")
                 ),
                 tabPanel(
                     value = 8,
                     title = "GSEA",
                     br(),
+                    uiOutput("dl_gsea_button"),
                     plotOutput("res_gsea")
                 )
             )

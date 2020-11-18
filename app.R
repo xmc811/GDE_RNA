@@ -206,8 +206,13 @@ server <- function(input, output, session) {
         })
     }
     
-    download_pdf <- function(file) {
-        pdf(file, height = plot_height()/72, plot_width()/72)
+    download_pdf <- function(file, type = NULL) {
+        dpi <- 72
+        if (is.null(type)) {
+            pdf(file, height = viz_plot_height()/dpi, viz_plot_width()/dpi)
+        } else {
+            pdf(file, height = plot_height()/dpi, plot_width()/dpi)
+        }
     }
     
     # PCA - Clustering
@@ -254,7 +259,7 @@ server <- function(input, output, session) {
     
     output$dl_pca <- downloadHandler(filename = function() {"test.pdf"},
                                      content = function(file) {
-                                         download_pdf(file); print(plots$pca); dev.off()
+                                         download_pdf(file, 1); print(plots$pca); dev.off()
                                          })
     
     # Sample Distance - Plotting
@@ -273,7 +278,7 @@ server <- function(input, output, session) {
     
     output$dl_hm <- downloadHandler(filename = function() {"test.pdf"},
                                      content = function(file) {
-                                         download_pdf(file); print(plots$hm); dev.off()
+                                         download_pdf(file, 1); print(plots$hm); dev.off()
                                      })
     
     
@@ -429,51 +434,91 @@ server <- function(input, output, session) {
     output$res_ma <- renderPlot({
         withProgress(message = "Plotting...", value = 0.5, {
         validate_res()
-        plot_deseq_ma(res(),
-                      input$p_co, 
-                      input$lfc_co,
-                      input$lfc_plot_lim)
+        plots$ma <- plot_deseq_ma(res(),
+                                  input$p_co, 
+                                  input$lfc_co,
+                                  input$lfc_plot_lim)
+        plots$ma
         })
     }, height = viz_plot_height, width = viz_plot_width)
+    
+    output$dl_ma_button <- button_download("dl_ma")
+    
+    output$dl_ma <- downloadHandler(filename = function() {"test.pdf"},
+                                    content = function(file) {
+                                        download_pdf(file); print(plots$ma); dev.off()
+                                    })
     
     output$res_volcano <- renderPlot({
         withProgress(message = "Plotting...", value = 0.5, {
         validate_res()
-        plot_deseq_volcano(res(), 
-                           input$p_co, 
-                           input$lfc_co,
-                           input$p_plot_lim,
-                           input$lfc_plot_lim)
+        plots$volcano <- plot_deseq_volcano(res(), 
+                                            input$p_co, 
+                                            input$lfc_co,
+                                            input$p_plot_lim,
+                                            input$lfc_plot_lim)
+        plots$volcano
         })
     }, height = viz_plot_height, width = viz_plot_width)
+    
+    output$dl_volcano_button <- button_download("dl_volcano")
+    
+    output$dl_volcano <- downloadHandler(filename = function() {"test.pdf"},
+                                    content = function(file) {
+                                        download_pdf(file); print(plots$volcano); dev.off()
+                                    })
     
     output$res_box <- renderPlot({
         withProgress(message = "Plotting...", value = 0.5, {
         validate_res()
-        plot_gene_boxplot(dds_run(), 
-                          rna_genes(),
-                          input$box_var, 
-                          input$viz_pal_categorical)
+        plots$box <- plot_gene_boxplot(dds_run(), 
+                                       rna_genes(),
+                                       input$box_var, 
+                                       input$viz_pal_categorical)
+        plots$box
         })
     }, height = viz_plot_height, width = viz_plot_width)
+    
+    output$dl_box_button <- button_download("dl_box")
+    
+    output$dl_box <- downloadHandler(filename = function() {"test.pdf"},
+                                         content = function(file) {
+                                             download_pdf(file); print(plots$box); dev.off()
+                                         })
     
     output$res_cluster <- renderPlot({
         withProgress(message = "Plotting...", value = 0.5, {
         validate_res()
-        plot_sample_gene_mtx(dds_run(), 
-                             rna_genes(),
-                             input$viz_pal_continuous, 
-                             input$viz_pal_dir)
+        plots$cluster <- plot_sample_gene_mtx(dds_run(), 
+                                              rna_genes(),
+                                              input$viz_pal_continuous, 
+                                              input$viz_pal_dir)
+        plots$cluster
         })
     }, height = viz_plot_height, width = viz_plot_width)
+    
+    output$dl_cluster_button <- button_download("dl_cluster")
+    
+    output$dl_cluster <- downloadHandler(filename = function() {"test.pdf"},
+                                     content = function(file) {
+                                         download_pdf(file); print(plots$cluster); dev.off()
+                                     })
     
     output$res_gsea <- renderPlot({
         withProgress(message = "Plotting...", value = 0.5, {
         validate_res()
-        plot_deseq_gsea(res_to_gsea(res(), 
-                                    rna_pathways()))
+        plots$gsea <- plot_deseq_gsea(res_to_gsea(res(), 
+                                                  rna_pathways()))
+        plots$gsea
         })
     }, height = viz_plot_height, width = viz_plot_width)
+    
+    output$dl_gsea_button <- button_download("dl_gsea")
+    
+    output$dl_gsea <- downloadHandler(filename = function() {"test.pdf"},
+                                     content = function(file) {
+                                         download_pdf(file); print(plots$gsea); dev.off()
+                                     })
     
     
     # Help
