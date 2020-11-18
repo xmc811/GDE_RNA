@@ -99,12 +99,14 @@ tab_file <- tabPanel(
                     value = 2,
                     title = "PCA",
                     br(),
-                    plotOutput("pca")
+                    uiOutput("dl_pca_button"),
+                    plotOutput("pca"),
                 ),
                 tabPanel(
                     value = 3,
                     title = "Heatmap",
                     br(),
+                    uiOutput("dl_hm_button"),
                     plotOutput("hm")
                 ),
                 tabPanel(

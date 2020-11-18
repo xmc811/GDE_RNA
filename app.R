@@ -198,6 +198,18 @@ server <- function(input, output, session) {
         return(input$plot_width)
     })
     
+    # Plot Download Component
+    button_download <- function(id) {
+        renderUI({
+            validate(need(try(vsd()), ""))
+            downloadButton(id, label = "Download PDF")
+        })
+    }
+    
+    download_pdf <- function(file) {
+        pdf(file, height = plot_height()/72, plot_width()/72)
+    }
+    
     # PCA - Clustering
     km_res <- reactive({
         vsd_km(vsd(), input$n_cluster)
@@ -210,15 +222,17 @@ server <- function(input, output, session) {
     })
     
     # PCA - Plotting
+    
+    plots <- reactiveValues()
+    
     validate_vsd <- function() {
         validate(need(try(vsd()), "VSD object not computed. Visualization not available."))
     }
     
-    
     output$pca <- renderPlot({
         withProgress(message = "Plotting...", value = 0.5, {
         validate_vsd()
-        if (input$cluster_sw == TRUE) {
+        plots$pca <- if (input$cluster_sw == TRUE) {
             plot_pca_vsd_km(vsd = vsd(), 
                             km_res = km_res(), 
                             pal = input$pal_categorical)
@@ -228,23 +242,40 @@ server <- function(input, output, session) {
                          pal = input$pal_continuous,
                          dir = ifelse(input$pal_dir, 1, -1))
         } else {
-            plot_pca_vsd(vsd =vsd(), 
+            plot_pca_vsd(vsd = vsd(), 
                          var = input$pca_var, 
-                         pal =input$pal_categorical)
+                         pal = input$pal_categorical)
         }
+        plots$pca
         })
     }, height = plot_height, width = plot_width)
+    
+    output$dl_pca_button <- button_download("dl_pca")
+    
+    output$dl_pca <- downloadHandler(filename = function() {"test.pdf"},
+                                     content = function(file) {
+                                         download_pdf(file); print(plots$pca); dev.off()
+                                         })
     
     # Sample Distance - Plotting
     output$hm <- renderPlot({
         withProgress(message = "Plotting...", value = 0.5, {
         validate_vsd()
-        plot_heatmap_vsd(vsd = vsd(), 
+        plots$hm <- plot_heatmap_vsd(vsd = vsd(), 
                          var = input$pca_var, 
                          pal = input$pal_continuous, 
                          dir = input$pal_dir)
+        plots$hm
         })
     }, height = plot_height, width = plot_width)
+    
+    output$dl_hm_button <- button_download("dl_hm")
+    
+    output$dl_hm <- downloadHandler(filename = function() {"test.pdf"},
+                                     content = function(file) {
+                                         download_pdf(file); print(plots$hm); dev.off()
+                                     })
+    
     
     # DGE
     output$dge_var_ui <- renderUI({
