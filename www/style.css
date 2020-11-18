@@ -1,19 +1,23 @@
 
+* {
+ font-family: Arial, Helvetica, sans-serif;
+}
+
+
 h3 {
     font-family: Arial, Helvetica, sans-serif;
-    color: black;
     font-weight: 400;
 }
 
 h4 {
     font-family: Arial, Helvetica, sans-serif;
-    color: #034e7b;
     font-weight: 400;
 }
 
 .btn-upload {
     color: white;
     background-color: #4292c6;
+    font-family: Arial, Helvetica, sans-serif;
     width: 100%;
 }
 
@@ -33,4 +37,42 @@ h4 {
     color: white;
     background-color: #006d2c;
 }
+
+.btn-compute-2 {
+    color: white;
+    background-color: #41ab5d;
+    margin-top: 25px; 
+    float: right; 
+    margin-right: 5px;
+}
+
+.btn-compute-2:hover {
+    color: white;
+    background-color: #006d2c;
+}
+
+
+.btn-plot {
+    color: white;
+    background-color: #807dba;
+    margin-top: 25px; 
+    float: right; 
+    margin-right: 5px;
+}
+
+.btn-plot:hover {
+    color: white;
+    background-color: #6a51a3;
+}
+
+.shiny-download-link {
+    color: white;
+    background-color: #807dba;
+}
+
+.shiny-download-link:hover {
+    color: white;
+    background-color: #6a51a3;
+}
+
 

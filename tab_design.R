@@ -1,7 +1,7 @@
 
 tab_file <- tabPanel(
     
-    title = "Data Input",
+    title = "Data Input & Exploration",
     fluid = TRUE,
     value = "v_file",
     

@@ -27,22 +27,22 @@ button_cts_compute <- function() {
 button_assign_cluster <- function() {
     actionButton(inputId = "assign_cluster_click", 
                  label = "Assign K-means Cluster", 
-                 icon = icon("calculator"), 
-                 style = "color:white; background-color:#2ca25f; margin-top:25px; float:right; margin-right:5px;")
+                 icon = icon("calculator"),
+                 class = "btn-compute-2")
 }
 
 button_dge <- function() {
     actionButton(inputId = "dge_click", 
-                 label = "Start DGE",
+                 label = "4. Start DGE",
                  icon = icon("bar-chart"),
-                 style = "color:white; background-color:#0570b0;")
+                 class = "btn-compute")
 }
 
 button_read_gene <- function(value) {
     actionButton(inputId = paste0("rna_gene_read", as.character(value)),
                  label = "Plot",
                  icon = icon("picture-o"),
-                 style = "color:white; background-color:#737373; margin-top:25px; float:right; margin-right:5px;")
+                 class = "btn-plot")
 }
 
 # Radio Selections
@@ -119,7 +119,7 @@ select_palette <- function(tab, type) {
 
 # Numbers
 number_cts_cutoff <- function(){
-    numericInput(inputId = "cts_cutoff", label = NULL, value = 10)
+    numericInput(inputId = "cts_cutoff", label = "Count cutoff (count data row sums < n)", value = 10)
 }
 
 number_plot_size <- function(tab, type) {

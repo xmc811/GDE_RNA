@@ -37,9 +37,9 @@ server <- function(input, output, session) {
     # Raw Data Input - UI
     output$upload_panel <- renderUI({
         list(
-            h3("RNA-seq Raw Data Input"),
+            h3("RNA-Seq Data Input"),
             br(),
-            h4("Data Source"),
+            h4("1. File Upload"),
             upload_widgets
         )
     })
@@ -100,12 +100,12 @@ server <- function(input, output, session) {
                      need(input$cts_files, "Please Upload Count Data"))
         } else {}
         list(
-            h4("File-Sample Name Matching"),
+            br(),
+            h4("2. Pre-Process Count and Metadata"),
             select_meta(id = "meta_sample_col", 
                         text = "Sample Column"),
             select_meta(id = "meta_file_col", 
                         text = "File Name Column"),
-            h4("Count cutoff (count data row sums < n)"),
             number_cts_cutoff(),
             button_cts_process()
         )
@@ -139,7 +139,8 @@ server <- function(input, output, session) {
     output$compute_button <- renderUI({
         validate(need(try(cts()),""),
                  need(try(mt()),""))
-        button_cts_compute()
+        list(h4("3. Generate DESeq2 Data"),
+             button_cts_compute())
     })
     
     
