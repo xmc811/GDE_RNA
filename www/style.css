@@ -11,3 +11,26 @@ h4 {
     font-weight: 400;
 }
 
+.btn-upload {
+    color: white;
+    background-color: #4292c6;
+    width: 100%;
+}
+
+.btn-upload:hover {
+    color: white;
+    background-color: #08519c;
+}
+
+
+.btn-compute {
+    color: white;
+    background-color: #41ab5d;
+    width: 100%;
+}
+
+.btn-compute:hover {
+    color: white;
+    background-color: #006d2c;
+}
+

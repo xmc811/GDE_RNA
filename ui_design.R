@@ -5,23 +5,23 @@
 # Buttons
 button_cts_upload <- function() {
     actionButton(inputId = "cts_upload_click", 
-                 label = "Upload", 
-                 icon = icon("upload"), 
-                 style = "color:white; background-color:#0570b0; float:right; margin-right:5px; width:150px; max-width:90%;")
+                 label = "1. Upload Files", 
+                 icon = icon("upload"),
+                 class = "btn-upload")
 }
 
 button_cts_process <- function() {
     actionButton(inputId = "cts_process_click", 
-                 label = "Pre-Process", 
+                 label = "2. Pre-Process Count and Metadata", 
                  icon = icon("files-o"), 
-                 style = "color:white; background-color:#0570b0; width:140px;")
+                 class = "btn-upload")
 }
 
 button_cts_compute <- function() {
     actionButton(inputId = "cts_compute_click", 
-                 label = "Compute", 
+                 label = "3. Generate DESeq2 Data", 
                  icon = icon("calculator"), 
-                 style = "color:white; background-color:#2ca25f; width:140px;")
+                 class = "btn-compute")
 }
 
 button_assign_cluster <- function() {
