@@ -70,14 +70,14 @@ radio_pathway_source <- function() {
 # File Uploading
 file_cts_upload <- function() {
     fileInput(inputId = "cts_files",
-              label = " ",
+              label = NULL,
               multiple = TRUE,
               buttonLabel = "Upload HTSeq Counts Files..")
 }
 
 file_meta_upload <- function() {
     fileInput(inputId = "meta_file",
-              label = " ",
+              label = NULL,
               buttonLabel = "Upload Metadata File..")
 }
 

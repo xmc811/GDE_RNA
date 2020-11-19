@@ -323,11 +323,15 @@ server <- function(input, output, session) {
     res <- reactiveVal()
     
     observeEvent(input$dge_click,{
-        dds_run(cts_to_dds(cts(), mt(), input$dge_var))
-        res(DESeq2::results(dds_run(), 
-                            contrast = c(input$dge_var, 
-                                         input$dge_g1, 
-                                         input$dge_g2)))
+        if (input$dge_var == "Sample") {
+            output$dge_error <- renderText("Error")
+        } else {
+            dds_run(cts_to_dds(cts(), mt(), input$dge_var))
+            res(DESeq2::results(dds_run(), 
+                                contrast = c(input$dge_var, 
+                                             input$dge_g1, 
+                                             input$dge_g2)))
+        }
     })
     
     output$dge_message <- renderText({
@@ -442,6 +446,7 @@ server <- function(input, output, session) {
     
     output$res_ma <- renderPlot({
         validate_res()
+        validate_params(input$p_co)
         withProgress(message = "Plotting...", value = 0.5, {
         plots$ma <- plot_deseq_ma(res(),
                                   input$p_co, 
@@ -461,6 +466,8 @@ server <- function(input, output, session) {
     output$res_volcano <- renderPlot({
         withProgress(message = "Plotting...", value = 0.5, {
         validate_res()
+        validate_params(input$p_co)
+        validate_params(input$p_plot_lim)
         plots$volcano <- plot_deseq_volcano(res(), 
                                             input$p_co, 
                                             input$lfc_co,
@@ -480,6 +487,8 @@ server <- function(input, output, session) {
     output$res_box <- renderPlot({
         withProgress(message = "Plotting...", value = 0.5, {
         validate_res()
+        validate_params(rna_genes())
+        validate_params(input$box_var)
         plots$box <- plot_gene_boxplot(dds_run(), 
                                        rna_genes(),
                                        input$box_var, 
@@ -498,6 +507,7 @@ server <- function(input, output, session) {
     output$res_cluster <- renderPlot({
         withProgress(message = "Plotting...", value = 0.5, {
         validate_res()
+        validate_params(rna_genes())
         plots$cluster <- plot_sample_gene_mtx(dds_run(), 
                                               rna_genes(),
                                               input$viz_pal_continuous, 
@@ -516,6 +526,7 @@ server <- function(input, output, session) {
     output$res_gsea <- renderPlot({
         withProgress(message = "Plotting...", value = 0.5, {
         validate_res()
+        validate_params(rna_pathways())
         plots$gsea <- plot_deseq_gsea(res_to_gsea(res(), 
                                                   rna_pathways()))
         plots$gsea

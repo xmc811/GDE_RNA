@@ -15,8 +15,11 @@ h4 {
 }
 
 #mt_message,
-#count_message {
-    font-family: Arial, Helvetica, sans-serif;
+#count_message,
+#cts_summary,
+#compute_message,
+#dge_message {
+    font-size: 15px;
 }
 
 .btn-upload {

@@ -113,7 +113,8 @@ tab_file <- tabPanel(
                     value = 4,
                     title = "Differential Gene Expression Analysis",
                     br(),
-                    verbatimTextOutput("dge_message")
+                    verbatimTextOutput("dge_message"),
+                    verbatimTextOutput("dge_error")
                 )
             )
         )
