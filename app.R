@@ -103,9 +103,9 @@ server <- function(input, output, session) {
             br(),
             h4("2. Pre-Process Count and Metadata"),
             select_meta(id = "meta_sample_col", 
-                        text = "Sample Column"),
+                        text = "Column with Sample Names"),
             select_meta(id = "meta_file_col", 
-                        text = "File Name Column"),
+                        text = "Column with File Names"),
             number_cts_cutoff(),
             button_cts_process()
         )
@@ -157,7 +157,7 @@ server <- function(input, output, session) {
     output$compute_message <- renderText({
         validate(need(!is.null(dds()), ""),
                  need(!is.null(vsd()), ""))
-        paste0("Initial computation done.\nYou can explore your data in other panels.")
+        paste0("DESeq2 data object generated.\nYou can explore your data in other panels.")
     })
     
     
@@ -165,7 +165,7 @@ server <- function(input, output, session) {
     output$pca_var_ui <- renderUI({
         validate(need(!is.null(vsd()), ""))
         selectInput(inputId = "pca_var", 
-                    label = "Variable for PCA Plot and Heatmap",
+                    label = "Variable for PCA Plot and Sample Distance Heatmap",
                     choices = colnames(vsd()@colData),
                     selected = colnames(vsd()@colData)[1])
     })

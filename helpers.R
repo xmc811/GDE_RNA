@@ -45,10 +45,7 @@ parse_rna_genes <- function(gene_list) {
 
 
 get_count_message <- function(mtx) {
-    
-    msg <- paste0(ncol(mtx), 
-                  " HTSeq count files uploaded\n",
-                  "Number of genes: ", nrow(mtx))
+    msg <- paste("HTSeq count data uploaded:", ncol(mtx), "files,", nrow(mtx), "genes")
     return(msg)
 }
 

@@ -119,7 +119,7 @@ select_palette <- function(tab, type) {
 
 # Numbers
 number_cts_cutoff <- function(){
-    numericInput(inputId = "cts_cutoff", label = "Count cutoff (count data row sums < n)", value = 10)
+    numericInput(inputId = "cts_cutoff", label = "Count cutoff (genes with total count < n will be filtered out)", value = 20)
 }
 
 number_plot_size <- function(tab, type) {

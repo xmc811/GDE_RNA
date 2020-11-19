@@ -27,11 +27,11 @@ tab_file <- tabPanel(
             ),
             conditionalPanel(
                 condition = "input.count_panel == 2 ",
-                h3("PCA Plot")
+                h3("Data Exploration")
             ),
             conditionalPanel(
                 condition = "input.count_panel == 3 ",
-                h3("Sample Distance Heatmap")
+                h3("Data Exploration")
             ),
             conditionalPanel(
                 condition = "input.count_panel == 4 ",
@@ -97,21 +97,21 @@ tab_file <- tabPanel(
                 ),
                 tabPanel(
                     value = 2,
-                    title = "PCA",
+                    title = "Principle Component Analysis",
                     br(),
                     uiOutput("dl_pca_button"),
                     plotOutput("pca"),
                 ),
                 tabPanel(
                     value = 3,
-                    title = "Heatmap",
+                    title = "Sample Distance Heatmap",
                     br(),
                     uiOutput("dl_hm_button"),
                     plotOutput("hm")
                 ),
                 tabPanel(
                     value = 4,
-                    title = "DGE Run",
+                    title = "Differential Gene Expression Analysis",
                     br(),
                     verbatimTextOutput("dge_message")
                 )
