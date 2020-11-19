@@ -235,10 +235,16 @@ server <- function(input, output, session) {
         validate(need(try(vsd()), "VSD object not computed. Visualization not available."))
     }
     
+    validate_params <- function(param) {
+        validate(need(try(param), "Parameters missing. Visualization not available."))
+    }
+    
     output$pca <- renderPlot({
         withProgress(message = "Plotting...", value = 0.5, {
         validate_vsd()
+        validate_params(input$pca_var)
         plots$pca <- if (input$cluster_sw == TRUE) {
+            validate_params(km_res())
             plot_pca_vsd_km(vsd = vsd(), 
                             km_res = km_res(), 
                             pal = input$pal_categorical)
@@ -267,6 +273,7 @@ server <- function(input, output, session) {
     output$hm <- renderPlot({
         withProgress(message = "Plotting...", value = 0.5, {
         validate_vsd()
+        validate_params(input$pca_var)
         plots$hm <- plot_heatmap_vsd(vsd = vsd(), 
                          var = input$pca_var, 
                          pal = input$pal_continuous, 
@@ -427,14 +434,15 @@ server <- function(input, output, session) {
     
     output$res_table <- DT::renderDataTable({
         validate_res()
+        validate_params(input$p_co)
         deseq_table(res(), 
                     input$p_co, 
                     input$lfc_co)
     })
     
     output$res_ma <- renderPlot({
-        withProgress(message = "Plotting...", value = 0.5, {
         validate_res()
+        withProgress(message = "Plotting...", value = 0.5, {
         plots$ma <- plot_deseq_ma(res(),
                                   input$p_co, 
                                   input$lfc_co,

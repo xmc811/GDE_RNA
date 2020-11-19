@@ -14,9 +14,9 @@ h4 {
     font-weight: 400;
 }
 
-#mt_message {
+#mt_message,
+#count_message {
     font-family: Arial, Helvetica, sans-serif;
-    color: red;
 }
 
 .btn-upload {
