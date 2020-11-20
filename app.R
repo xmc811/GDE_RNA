@@ -366,7 +366,8 @@ server <- function(input, output, session) {
         list(h4("Variable"),
              selectInput(inputId = "box_var", 
                          label = "Categorical Variable for Gene Boxplot",
-                         choices = colnames(dds_run()@colData))
+                         choices = colnames(dds_run()@colData),
+                         selected = input$dge_var)
             )
     })
     
