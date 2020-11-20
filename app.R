@@ -157,7 +157,7 @@ server <- function(input, output, session) {
     output$compute_message <- renderText({
         validate(need(!is.null(dds()), ""),
                  need(!is.null(vsd()), ""))
-        paste0("DESeq2 data object generated.\nYou can explore your data in other panels.")
+        paste0("DESeq2 data object generated.\n\nYou can explore your data in other panels.")
     })
     
     
@@ -323,24 +323,19 @@ server <- function(input, output, session) {
     res <- reactiveVal()
     
     observeEvent(input$dge_click,{
-        if (input$dge_var == "Sample") {
-            output$dge_error <- renderText("Error")
+        if (!is_valid_dge(mt(), input$dge_var, input$dge_g1, input$dge_g2)) {
+            output$dge_message <- renderText({get_dge_message(FALSE)})
         } else {
             dds_run(cts_to_dds(cts(), mt(), input$dge_var))
             res(DESeq2::results(dds_run(), 
                                 contrast = c(input$dge_var, 
                                              input$dge_g1, 
                                              input$dge_g2)))
+            output$dge_message <- renderText({
+                validate(need(try(res()), ""))
+                get_dge_message(TRUE, res())
+            })
         }
-    })
-    
-    output$dge_message <- renderText({
-        validate(need(try(res()), ""))
-        paste0("Differential gene expression (DGE) analysis done\n\n",
-               res()@elementMetadata[2,2] %>%
-                   str_remove("^.*:") %>%
-                   str_trim(), "\n\n",
-               "You can visualize your data in the 'DGE Visualization' tab.")
     })
     
     

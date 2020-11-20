@@ -55,6 +55,29 @@ filter_mt <- function(mtx, metadata) {
 }
 
 
+is_valid_dge <- function(mt, dge_var, g1, g2) {
+    if (sum(mt[[dge_var]] == g1) <= 1 || sum(mt[[dge_var]] == g2) <= 1) {
+        return(FALSE)
+    } else {
+        return(TRUE)
+    }
+}
+
+get_dge_message <- function(isvalid, res = NULL) {
+    if(isvalid) {
+        msg <- paste0("Differential gene expression (DGE) analysis is finished\n\n",
+                      res@elementMetadata[2,2] %>%
+                          str_remove("^.*:") %>%
+                          str_trim(), "\n\n",
+                      "You can visualize the results in the 'DGE Visualization' tab.")
+    } else {
+        msg <- "The specified differential gene expression (DGE) analysis is not valid.\n\nThe sample size in each group should be > 1."
+    }
+    return(msg)
+}
+
+
+
 cts_to_dds <- function(mtx, metadata, var = 1) {
     
     withProgress(message = "Loading Data..", value = 0.3, {
