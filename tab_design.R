@@ -239,7 +239,7 @@ tab_help <- tabPanel(
     sidebarLayout(
         
         sidebarPanel = sidebarPanel(
-            
+            h3("Help")
         ),
         
         mainPanel(
@@ -257,20 +257,14 @@ tab_about <- tabPanel(
     sidebarLayout(
         
         sidebarPanel = sidebarPanel(
-            
-            
-            
+            h3("About")
         ),
         
         mainPanel(
             br(),
-            h4("Authors:"),
+            h4("The application was developed by Mingchu Xu. It is only for demonstration purpose."),
             br(),
-            h4("Mingchu Xu"),
-            br(),
-            h4("Xiaogang (Sean) Wu"),
-            br(),
-            h4("Jianhua (John) Zhang")
+            h4("However, it may serve as a template for RNA-seq-based visualization applications, and comments are always welcomed.")
         )
     )
 )
