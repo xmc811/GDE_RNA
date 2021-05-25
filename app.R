@@ -541,7 +541,7 @@ server <- function(input, output, session) {
 
     output$pdfview <- renderUI({
         tags$iframe(style = "height:700px; width:100%", 
-                    src = "GDE_User_Guide_07102020.pdf")
+                    src = "GDE_User_Guide.pdf")
     })
     
 }
