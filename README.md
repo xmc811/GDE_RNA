@@ -18,3 +18,19 @@ docker run --rm -p 3838:3838 ghcr.io/xmc811/rocker_gde_rna:1.0
 You should be able to access the application at `localhost:3838`.
 
 You may also clone the repository and run it within RStudio. However, it requires installation of additional R packages including [`xmcutil`](https://github.com/xmc811/xmcutil).
+
+---
+
+## User Interface
+
+As shown in the figure below, there are four top navigation tabs. The first two tabs contain core functionalities of the app, while the last two are merely placeholders serving as templates for further development.
+
+- Data Input & Exploration - includes data uploading, summary, sample-level data exploration, and differential gene expression (DGE) analysis.
+
+- DGE Visualization - visualizes the DGE results, including MA plots, volcano plots, boxplots, sample-gene heatmaps, and Gene-Set Enrichment Analysis (GSEA).
+
+- Help - a placeholder tab for embedding the `.pdf` help file.
+  
+- About - a placeholder tab for showing addtional information.
+
+![Interface](./pics/interface.png)
