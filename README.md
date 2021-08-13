@@ -1,29 +1,63 @@
 # GDE_RNA - R Shiny Visualization App for RNA-seq Data
 
-This repository hosts the code for the RNA-seq visualization project at The University of Texas MD Anderson Cancer Center. 
+This repository hosts the code for the RNA-seq visualization project at The University of Texas MD Anderson Cancer Center.
+The guide includes two parts:
+
+1. **Instructions for Developers**
+2. **Instructions for Users**
 
 ---
 
 ## Instructions for Developers
 
-#### 1. Overview
+### 1. Overview
 
-This application can be further developed on top of current files. It depends on several R Bionconductor packages and another R package specifically written
+You can clone this repository to your local computer and make further developments on top of these files.
+The application depends on several R Bionconductor packages and another R package specifically written
 for bulk RNA-seq visualization [`xmcutil`](https://github.com/xmc811/xmcutil).
 
-#### 2. Containerization
+### 2. Containerization
 
-The final Docker image is built upon the `rocker_gde_base:latest` image with additional configurations in the [`Dockerfile`](https://github.com/xmc811/GDE_RNA/blob/master/Dockerfile). `rocker_gde_base:latest` is an intermediate docker image used for facilitating the CI/CD process.
-During each development cycle, if changes are limited to the R Shiny App (instead of the underlying R packages), you can directly build the final image at the main directory.
+The roadmap of the containerization process can be summarized as below:
 
-The intermediate docker image `rocker_gde_base:latest` can be build upon the publicly available image [`rocker/shiny-verse:latest`](https://hub.docker.com/r/rocker/shiny-verse). The `Dockerfile` and the `.R` file for R package installations can be found [here](https://github.com/xmc811/GDE_RNA/tree/master/Rocker_GDE_base). If there are changes in these R packages, the `rocker_gde_base:latest` image needs to be re-built.
+> 
+> --- Start --- `rocker/shiny-verse:latest` (Publicly available image; Community-maintained)
+> 
+> -- Step 1 --> `rocker_gde_base:latest` (Intermediate image) 
+>
+> -- Step 2 --> `rocker_gde_rna:latest` (Final image)
+> 
 
-(Note: the installations of these R packages may take a long time. To increase the development efficiency, it is recommended to split the process into multiple steps, thus increasing the "layers" of the containerization.
+It starts from the publicly available image [`rocker/shiny-verse:latest`](https://hub.docker.com/r/rocker/shiny-verse), upon which the intermediate Docker image `rocker_gde_base:latest` can be built (Step 1). The purpose of the Step 1 is to install those dependencies not frequently updated, thus facilitating the CI/CD process. The Step 2 is to build the final Docker image `rocker_gde_rna:latest` from the intermediate image `rocker_gde_base:latest`.
+Hence, during each development cycle, if changes are limited to the R Shiny App (instead of the underlying dependencies), only the Step 2 is necessary; Otherwise, both steps are required.
 
+The Step 1 can be achieved by:
+
+```
+# From the root directory of the cloned repository
+cd Rocker_GDE_base
+docker build -t rocker_gde_base:latest .
+```
+
+The Step 2 can be achieved by:
+
+```
+docker build -t rocker_gde_rna .
+```
+
+After building the final image. The commands to run the image and access the app can be found below (See Instructions for Users - To Run the Application Locally Using Docker).
+
+Note: the Step 1 may take a long time (>10 min) to finish. It is recommended to further split the process into multiple steps to increase the number of "layers" of the containerization, thus improving the development efficiency.
+
+### 3. Placeholders
+
+There are some placeholders in the app for further developments. These will be described in details in the Section Instructions for Users.
+
+---
 
 ## Instructions for Users
 
-### To Run the Application Locally Using Docker
+### 1. To Run the Application Locally Using Docker
 
 It is recommended to use Docker Engine to run the R Shiny application package `rocker_gde_rna:1.0`:
 
@@ -38,7 +72,7 @@ You may also clone the repository and run it within RStudio. However, it require
 
 ---
 
-## User Interface
+### 2. User Interface
 
 As shown in the figure below, there are four top navigation tabs. The first two tabs contain core functionalities of the app, while the last two are merely placeholders serving as templates for further development.
 
@@ -51,11 +85,11 @@ As shown in the figure below, there are four top navigation tabs. The first two 
 
 ---
 
-## File Upload
+### 3. File Upload
 
 The file upload section contains three options. By default, the option "Example" is selected.
 
 - Example - sample RNA-Seq data with 10 samples.
 - Upload - users can upload HTSeq-count output files, with one file per sample.
-- Select - a placeholder for further development.
+- Select - a placeholder for further development. (e.g.: a dedicated storage folder can be configured to allow users to select files/data if the app is hosted on a server).
 
