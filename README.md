@@ -1,5 +1,11 @@
 # GDE_RNA - R Shiny Visualization App for RNA-seq Data
 
+![Demo_3](./pics/gde_rna_demo_3.png)
+
+![Demo_2](./pics/gde_rna_demo_2.png)
+
+![Demo_1](./pics/gde_rna_demo_1.png)
+
 This repository hosts the code for the RNA-seq visualization project at The University of Texas MD Anderson Cancer Center.
 The guide includes two parts:
 
